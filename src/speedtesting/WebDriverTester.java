@@ -45,6 +45,9 @@ public class WebDriverTester {
 	private String mBrowserVersion;
 	private String mBrowserVersionShort;
 	private String date;
+	private String pageName;
+	private String pageURL;
+	boolean isLogInPage = false;
 	private static final int C_VERSION = 0;
 	private static final int C_DATE = 1;
 	private static final int C_PAGE_NAME = 2;
@@ -61,13 +64,11 @@ public class WebDriverTester {
 	 * Make sure these are what you want
 	 */
 	public static final String VERSION = "3.1";
-	public static final String PAGE_NAME = "Sysop Home";
-	public static final String PAGE_URL = "https://demoh.acciodata.com/sysops/sysop_home5.html";
 	public static final String BROWSER = "Firefox";
 	public static final String ADD_ONS = "No";
-	public static final double RAM = 6;
+	public static final double RAM = 6.0;
 	/**These too**/
-	public static final int REPEAT = 2; //must be more than 0
+	public static final int REPEAT = 5; //must be more than 0
 	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing Results Accio Data Example.xlsm";
 	/**End of variables**/
 
@@ -86,6 +87,7 @@ public class WebDriverTester {
 		default : 			mBrowser = "Firefox";
 		break;
 		}
+		
 		getLogin();
 
 		//date field
@@ -100,7 +102,8 @@ public class WebDriverTester {
 		getNewDriver();
 		Capabilities cap = ((RemoteWebDriver) driver).getCapabilities();
 		mBrowserVersion = cap.getVersion();
-		mBrowserVersionShort = mBrowserVersion.substring(0, mBrowserVersion.indexOf(".")); 
+		mBrowserVersionShort = mBrowserVersion.substring(0, mBrowserVersion.indexOf("."));
+		driver.close();
 	}
 
 	/**
@@ -135,34 +138,23 @@ public class WebDriverTester {
 
 	}
 
+	public void run(String name, String url){
+		pageURL = url;
+		pageName = name;
+		run();
+	}
 	/**
 	 * Run REPEAT times from fresh window, then reload REPEAT times
 	 * Output data to spreadsheet
 	 * @param url URL of page to test
 	 */
-	@SuppressWarnings("unchecked")
-	public void run(String url){
+	public void run(){
+		getNewDriver();
+		checkIsLogIn();
+		
 		for(int x = 0; x < REPEAT; x++){
-			//load log-in page
-			driver.get(url);
-
-			waitForLoad(driver);
-
-			//log in
-			driver.findElement(By.id("account")).sendKeys(mAccount);
-			driver.findElement(By.id("userid")).sendKeys(mUser);
-			driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
-
-			waitForLoad(driver);
-
-			//get timings Map and calculate time
-			timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = window.performance || {};" + 
-					"var timings = performance.timing || {};" +
-					"return timings;");
-			long mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
-			System.out.println("No cache: " + mTotal);
-			results.add(new WebResult(mTotal, "No"));
-
+			logIn();
+			getTimings("No");
 			if(x != (REPEAT - 1)){
 				driver.close();
 				getNewDriver();
@@ -170,19 +162,53 @@ public class WebDriverTester {
 		}
 
 		for(int x = 0; x < REPEAT; x++){
-			driver.navigate().refresh();
-			waitForLoad(driver);
-
-			timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = window.performance || {};" + 
-					"var timings = performance.timing || {};" +
-					"return timings;");
-			long mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
-			System.out.println("Cache: " + mTotal);
-			results.add(new WebResult(mTotal, "Yes"));
+			refreshAndWait();
+			getTimings("Yes");
 		}
 		driver.close();
 		writeToExcel();
 	}	
+
+	private void checkIsLogIn() {
+		String[] urlArray = pageURL.split("\\.");
+		if ( urlArray[urlArray.length - 1].equals("com") ||
+			 urlArray[urlArray.length - 1].equals("com/") )
+			isLogInPage = true;
+		else
+			isLogInPage = false;
+	}
+
+	private void refreshAndWait() {
+		driver.navigate().refresh();
+		waitForLoad(driver);		
+	}
+
+	@SuppressWarnings("unchecked")
+	private void getTimings(String cache) {
+		//get timings Map and calculate time
+		timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = window.performance || {};" + 
+				"var timings = performance.timing || {};" +
+				"return timings;");
+		long mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
+		System.out.println(cache + " cache: " + mTotal);
+		results.add(new WebResult(mTotal, cache));
+	}
+
+	private void logIn() {
+		//load log-in page
+		driver.get(pageURL);
+
+		waitForLoad(driver);	
+
+		if( !isLogInPage ){
+			//log in
+			driver.findElement(By.id("account")).sendKeys(mAccount);
+			driver.findElement(By.id("userid")).sendKeys(mUser);
+			driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
+
+			waitForLoad(driver);
+		}
+	}
 
 	private void waitForLoad(WebDriver driver) {
 		ExpectedCondition<Boolean> pageLoadCondition = new
@@ -239,11 +265,11 @@ public class WebDriverTester {
 				XSSFRow rowhead = sheet.createRow((short)row);
 				rowhead.createCell(C_VERSION).setCellValue(VERSION);
 				rowhead.createCell(C_DATE).setCellValue(date);
-				rowhead.createCell(C_PAGE_NAME).setCellValue(PAGE_NAME);
-				rowhead.createCell(C_PAGE_URL).setCellValue(PAGE_URL);
+				rowhead.createCell(C_PAGE_NAME).setCellValue(pageName);
+				rowhead.createCell(C_PAGE_URL).setCellValue(pageURL);
 				rowhead.createCell(C_CACHE).setCellValue(webRes.cache);
 				rowhead.createCell(C_BROWSER).setCellValue(BROWSER);
-				rowhead.createCell(C_BROWSER_VERSION).setCellValue(mBrowserVersionShort); //TODO
+				rowhead.createCell(C_BROWSER_VERSION).setCellValue(mBrowserVersionShort);
 				rowhead.createCell(C_ADD_ONS).setCellValue(ADD_ONS);
 				rowhead.createCell(C_TIME).setCellValue(webRes.seconds);
 				rowhead.createCell(C_RAM).setCellValue(RAM);
@@ -265,7 +291,7 @@ public class WebDriverTester {
 		Logger.getRootLogger().setLevel(Level.OFF);
 
 		WebDriverTester mTest = new WebDriverTester(BROWSER);
-		mTest.run(PAGE_URL);
+		mTest.run(Pages.SYSOP_HOME_NAME, Pages.SYSOP_HOME_URL);
 	}
 
 }
