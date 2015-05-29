@@ -99,6 +99,10 @@ public class WebDriverTester {
 
 		results = new ArrayList<WebResult>();
 		
+		getBrowserVersion();
+	}
+
+	private void getBrowserVersion() {
 		getNewDriver();
 		Capabilities cap = ((RemoteWebDriver) driver).getCapabilities();
 		mBrowserVersion = cap.getVersion();
@@ -148,7 +152,8 @@ public class WebDriverTester {
 	 * Output data to spreadsheet
 	 * @param url URL of page to test
 	 */
-	public void run(){
+	private void run(){
+		System.out.println("\n" + pageName + "\n--------------------");
 		getNewDriver();
 		checkIsLogIn();
 		
@@ -167,6 +172,7 @@ public class WebDriverTester {
 		}
 		driver.close();
 		writeToExcel();
+		results.clear();
 	}	
 
 	private void checkIsLogIn() {
@@ -190,8 +196,14 @@ public class WebDriverTester {
 				"var timings = performance.timing || {};" +
 				"return timings;");
 		long mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
-		System.out.println(cache + " cache: " + mTotal);
-		results.add(new WebResult(mTotal, cache));
+		if (mTotal > 0){
+			System.out.println(cache + " cache: " + mTotal);
+			results.add(new WebResult(mTotal, cache));
+		} else {
+			System.out.println("Error! " + cache + " cache run");
+			System.out.println("loadEventEnd = " + timings.get("loadEventEnd"));
+			System.out.println("navigationStart = " + timings.get("navigationStart"));
+		}
 	}
 
 	private void logIn() {
@@ -291,7 +303,21 @@ public class WebDriverTester {
 		Logger.getRootLogger().setLevel(Level.OFF);
 
 		WebDriverTester mTest = new WebDriverTester(BROWSER);
-		mTest.run(Pages.SYSOP_HOME_NAME, Pages.SYSOP_HOME_URL);
+		//runAll(mTest);
+		runAllSkip(mTest, 11);
 	}
 
+	public static void runAll(WebDriverTester mTest) {
+		List<Page> pages = Page.getAllPages();
+		for (Page page : pages){
+			mTest.run(page.name, page.url);
+		}
+	}
+	
+	public static void runAllSkip(WebDriverTester mTest, int skip) {
+		List<Page> pages = Page.getAllPages();
+		for (int i = skip; i < pages.size(); i++){
+			mTest.run(pages.get(i).name, pages.get(i).url);
+		}
+	}
 }

@@ -1,6 +1,6 @@
 package speedtesting;
 
-public class Pages {
+public class Constants {
 	public static final String LOGIN_URL = "https://demoh.acciodata.com/";
 	public static final String LOGIN_NAME = "Log-in page";
 	
@@ -63,5 +63,5 @@ public class Pages {
 	
 	public static final String SYTEM_MESSAGES_URL = "https://demoh.acciodata.com/cgi-bin/sysops/system_messages";
 	public static final String SYTEM_MESSAGES_NAME = "System Messages";
-		
+			
 }
