@@ -25,6 +25,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -62,6 +63,7 @@ public class WebDriverTester {
 	public static final String DATA_SHEET = "Raw Data"; //Sheet name to look for
 	public static final String CHROMEDRIVER = "C:/Users/Victor/Downloads/chromedriver.exe";
 	public static final String IEDRIVER = "C:/Users/Victor/Downloads/iedriverserver.exe";
+	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt";
 	/**End of variables**/
 
 	/**
@@ -74,11 +76,12 @@ public class WebDriverTester {
 						break;
 		case CHROME : 	mBrowser = CHROME;
 						System.setProperty("webdriver.chrome.driver", CHROMEDRIVER);
-						System.setProperty(" webdriver.chrome.driver.loglevel ", "FATAL");
+						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
 						break;
 		case IE : 		mBrowser = IE;
 						System.setProperty("webdriver.ie.driver", IEDRIVER);
-						System.setProperty(" webdriver.ie.driver.loglevel ", "FATAL");
+						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
+						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
 						break;
 		default : 		mBrowser = FIREFOX;
 						break;
@@ -130,7 +133,9 @@ public class WebDriverTester {
 						break;
 		case CHROME : 	driver = new ChromeDriver();
 						break;
-		case IE : 		driver = new InternetExplorerDriver();
+		case IE : 		DesiredCapabilities cap = new DesiredCapabilities();
+						cap.setCapability("ie.ensureCleanSession", true);
+						driver = new InternetExplorerDriver(cap);
 						break;
 		default : 		driver = new FirefoxDriver();
 						break;
@@ -196,43 +201,42 @@ public class WebDriverTester {
 	}
 
 	private void refreshAndWait() {
-//		if (mBrowser.equals(IE))
-//			driver.navigate().refresh();
-//		else
-			((JavascriptExecutor)driver).executeScript("document.location.reload()"); // True refresh? Not Ctrl+F5
-//		ieStart = System.currentTimeMillis();
+		((JavascriptExecutor)driver).executeScript("document.location.reload()"); // True refresh? Not Ctrl+F5
 		waitForLoad(driver);
-//		ieEnd = System.currentTimeMillis();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void getTimings(String cache) {
-		//get timings Map and calculate time
 		long mTotal, mNoLoad;
 		
-//		if (mBrowser.equals(IE)){
-//			mTotal = ieEnd - ieStart;
-//			mNoLoad = Long.MAX_VALUE;
-//		} else {
-//		try {
-			timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = window.performance || {};" + 
-					"var timings = performance.timing || {};" +
-					"return timings;");
-//		} catch (NoSuchWindowException noSuchWindow) {
-//			timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = object.performance || {};" + 
-//					"var timings = performance.timing || {};" +
-//					"return timings;");
-//		} catch (ClassCastException classCast) {
-//			timings = (Map) ((JavascriptExecutor)driver).executeScript("var performance = object.performance || {};" + 
-//					"var timings = performance.timing || {};" +
-//					"return timings;");
-//		}
+		//get timings Map and calculate time
+		if (!mBrowser.equals(IE)) {
+			timings = (Map<String, Long>) ((JavascriptExecutor) driver)
+					.executeScript("var performance = window.performance || {};"
+							+ "var timings = performance.timing || {};"
+							+ "return timings;");
+			mTotal = (long) timings.get("loadEventEnd")
+					- (long) timings.get("navigationStart");
+			mNoLoad = mTotal + (long) timings.get("fetchStart")
+					- (long) timings.get("responseEnd");
+		} else { // IE shenanigans
+			List<Long> ieTimes = (ArrayList<Long>) ((JavascriptExecutor)driver)
+					.executeScript("var performance = window.performance || {};"
+							+ "var timings = performance.timing || {};"
+							+ "var navigationStart = timings.navigationStart || {};"
+							+ "var fetchStart = timings.fetchStart || {};"
+							+ "var responseEnd = timings.responseEnd || {};"
+							+ "var loadEventEnd = timings.loadEventEnd || {};"
+							+ "var times = [navigationStart, fetchStart, responseEnd, loadEventEnd] || {};"
+							+ "return times;");
+			
 
-			mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
-			mNoLoad = mTotal + (long) timings.get("requestStart") - (long) timings.get("responseEnd");
-//		}
+			mTotal = ieTimes.get(3) - ieTimes.get(0);
+			mNoLoad = mTotal + ieTimes.get(1) - ieTimes.get(2);
+		}
+		
 		if (mTotal > 0){
-			System.out.println(cache + " cache: " + mTotal);
+			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
 			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
 			System.out.println("Error! " + cache + " cache run");
@@ -349,9 +353,11 @@ public class WebDriverTester {
 	public static void main(String[] args) throws IOException{
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-		WebDriverTester mTest = new WebDriverTester(FIREFOX);
-		runAll(mTest);
-		mTest = new WebDriverTester(CHROME);
+//		WebDriverTester mTest = new WebDriverTester(FIREFOX);
+//		runAll(mTest);
+//		mTest = new WebDriverTester(CHROME);
+//		runAll(mTest);
+		WebDriverTester mTest = new WebDriverTester(IE);
 		runAll(mTest);
 	}
 
