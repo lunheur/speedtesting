@@ -63,5 +63,17 @@ public class Constants {
 	
 	public static final String SYTEM_MESSAGES_URL = "https://demoh.acciodata.com/cgi-bin/sysops/system_messages";
 	public static final String SYTEM_MESSAGES_NAME = "System Messages";
+	
+	public static final int COL_VERSION = 0;
+	public static final int COL_DATE = 1;
+	public static final int COL_PAGE_NAME = 2;
+	public static final int COL_PAGE_URL = 3;
+	public static final int COL_CACHE = 4;
+	public static final int COL_BROWSER = 5;
+	public static final int COL_BROWSER_VERSION = 6;
+	public static final int COL_ADD_ONS = 7;
+	public static final int COL_RAM = 8;
+	public static final int COL_TIME = 9;
+	public static final int COL_TIME_NO_LOAD = 10;
 			
 }

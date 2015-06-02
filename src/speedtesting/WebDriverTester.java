@@ -5,12 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,13 +17,10 @@ import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -47,29 +42,26 @@ public class WebDriverTester {
 	private String date;
 	private String pageName;
 	private String pageURL;
+	private long ieStart, ieEnd;
 	boolean isLogInPage = false;
-	private static final int C_VERSION = 0;
-	private static final int C_DATE = 1;
-	private static final int C_PAGE_NAME = 2;
-	private static final int C_PAGE_URL = 3;
-	private static final int C_CACHE = 4;
-	private static final int C_BROWSER = 5;
-	private static final int C_BROWSER_VERSION = 6;
-	private static final int C_ADD_ONS = 7;
-	private static final int C_TIME = 8;
-	private static final int C_RAM = 9;
+	private static final String FIREFOX = "Firefox";
+	private static final String CHROME = "Chrome";
+	private static final String IE = "IE";
+	private static final String NO_ADD_ONS = "No";
 
 	/**
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
 	public static final String VERSION = "3.1";
-	public static final String BROWSER = "Firefox";
-	public static final String ADD_ONS = "No";
+	public static final String ADD_ONS = NO_ADD_ONS;
 	public static final double RAM = 6.0;
 	/**These too**/
-	public static final int REPEAT = 5; //must be more than 0
-	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing Results Accio Data Example.xlsm";
+	public static final int REPEAT = 1; //must be more than 0
+	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls";
+	public static final String DATA_SHEET = "Raw Data"; //Sheet name to look for
+	public static final String CHROMEDRIVER = "C:/Users/Victor/Downloads/chromedriver.exe";
+	public static final String IEDRIVER = "C:/Users/Victor/Downloads/iedriverserver.exe";
 	/**End of variables**/
 
 	/**
@@ -78,14 +70,18 @@ public class WebDriverTester {
 	 */
 	public WebDriverTester(String browser){
 		switch (browser) {
-		case "Firefox" : 	mBrowser = "Firefox";
-		break;
-		case "Chrome" : 	mBrowser = "Chrome";
-		break;
-		case "IE" : 		mBrowser = "IE";
-		break;
-		default : 			mBrowser = "Firefox";
-		break;
+		case FIREFOX : 	mBrowser = FIREFOX;
+						break;
+		case CHROME : 	mBrowser = CHROME;
+						System.setProperty("webdriver.chrome.driver", CHROMEDRIVER);
+						System.setProperty(" webdriver.chrome.driver.loglevel ", "FATAL");
+						break;
+		case IE : 		mBrowser = IE;
+						System.setProperty("webdriver.ie.driver", IEDRIVER);
+						System.setProperty(" webdriver.ie.driver.loglevel ", "FATAL");
+						break;
+		default : 		mBrowser = FIREFOX;
+						break;
 		}
 		
 		getLogin();
@@ -106,8 +102,23 @@ public class WebDriverTester {
 		getNewDriver();
 		Capabilities cap = ((RemoteWebDriver) driver).getCapabilities();
 		mBrowserVersion = cap.getVersion();
-		mBrowserVersionShort = mBrowserVersion.substring(0, mBrowserVersion.indexOf("."));
-		driver.close();
+		
+		if (mBrowser.equals(IE)){
+			mBrowserVersionShort = mBrowserVersion; 
+			String uAgent = (String) ((JavascriptExecutor) driver).executeScript("return navigator.userAgent;");
+			//uAgent return as "MSIE 8.0 Windows" for IE8
+			if (uAgent.contains("MSIE") && uAgent.contains("Windows")) {
+				mBrowserVersion = uAgent.substring(uAgent.indexOf("MSIE")+5, uAgent.indexOf("Windows")-2);
+			} else if (uAgent.contains("Trident/7.0")) {
+				mBrowserVersion = "11.0";
+			} else {
+				mBrowserVersion = "0.0";
+			}
+		} else{
+			mBrowserVersionShort = mBrowserVersion.substring(0, mBrowserVersion.indexOf("."));
+		}
+		System.out.println(mBrowser + " Version: " + mBrowserVersionShort);
+		driver.quit();
 	}
 
 	/**
@@ -115,14 +126,14 @@ public class WebDriverTester {
 	 */
 	private void getNewDriver() {
 		switch (mBrowser) {
-		case "Firefox" : 	driver = new FirefoxDriver();
-		break;
-		case "Chrome" : 	driver = new ChromeDriver();
-		break;
-		case "IE" : 		driver = new InternetExplorerDriver();
-		break;
-		default : 			driver = new FirefoxDriver();
-		break;
+		case FIREFOX : 	driver = new FirefoxDriver();
+						break;
+		case CHROME : 	driver = new ChromeDriver();
+						break;
+		case IE : 		driver = new InternetExplorerDriver();
+						break;
+		default : 		driver = new FirefoxDriver();
+						break;
 		}
 	}
 
@@ -161,7 +172,7 @@ public class WebDriverTester {
 			logIn();
 			getTimings("No");
 			if(x != (REPEAT - 1)){
-				driver.close();
+				driver.quit();
 				getNewDriver();
 			}
 		}
@@ -170,7 +181,7 @@ public class WebDriverTester {
 			refreshAndWait();
 			getTimings("Yes");
 		}
-		driver.close();
+		driver.quit();
 		writeToExcel();
 		results.clear();
 	}	
@@ -185,20 +196,44 @@ public class WebDriverTester {
 	}
 
 	private void refreshAndWait() {
-		driver.navigate().refresh();
-		waitForLoad(driver);		
+//		if (mBrowser.equals(IE))
+//			driver.navigate().refresh();
+//		else
+			((JavascriptExecutor)driver).executeScript("document.location.reload()"); // True refresh? Not Ctrl+F5
+//		ieStart = System.currentTimeMillis();
+		waitForLoad(driver);
+//		ieEnd = System.currentTimeMillis();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void getTimings(String cache) {
 		//get timings Map and calculate time
-		timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = window.performance || {};" + 
-				"var timings = performance.timing || {};" +
-				"return timings;");
-		long mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
+		long mTotal, mNoLoad;
+		
+//		if (mBrowser.equals(IE)){
+//			mTotal = ieEnd - ieStart;
+//			mNoLoad = Long.MAX_VALUE;
+//		} else {
+//		try {
+			timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = window.performance || {};" + 
+					"var timings = performance.timing || {};" +
+					"return timings;");
+//		} catch (NoSuchWindowException noSuchWindow) {
+//			timings = (Map<String, Long>) ((JavascriptExecutor)driver).executeScript("var performance = object.performance || {};" + 
+//					"var timings = performance.timing || {};" +
+//					"return timings;");
+//		} catch (ClassCastException classCast) {
+//			timings = (Map) ((JavascriptExecutor)driver).executeScript("var performance = object.performance || {};" + 
+//					"var timings = performance.timing || {};" +
+//					"return timings;");
+//		}
+
+			mTotal = (long) timings.get("loadEventEnd") - (long) timings.get("navigationStart");
+			mNoLoad = mTotal + (long) timings.get("requestStart") - (long) timings.get("responseEnd");
+//		}
 		if (mTotal > 0){
 			System.out.println(cache + " cache: " + mTotal);
-			results.add(new WebResult(mTotal, cache));
+			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
 			System.out.println("Error! " + cache + " cache run");
 			System.out.println("loadEventEnd = " + timings.get("loadEventEnd"));
@@ -207,10 +242,13 @@ public class WebDriverTester {
 	}
 
 	private void logIn() {
+//		ieStart = System.currentTimeMillis();
 		//load log-in page
 		driver.get(pageURL);
 
-		waitForLoad(driver);	
+		waitForLoad(driver);
+		
+//		ieEnd = System.currentTimeMillis();
 
 		if( !isLogInPage ){
 			//log in
@@ -218,7 +256,9 @@ public class WebDriverTester {
 			driver.findElement(By.id("userid")).sendKeys(mUser);
 			driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
 
+//			ieStart = System.currentTimeMillis();
 			waitForLoad(driver);
+//			ieEnd = System.currentTimeMillis();
 		}
 	}
 
@@ -237,24 +277,26 @@ public class WebDriverTester {
 		try {
 
 			HSSFWorkbook workbook = new HSSFWorkbook();
-			HSSFSheet sheet = workbook.getSheetAt(1);
+			HSSFSheet sheet = workbook.createSheet(DATA_SHEET);
 
-			HSSFRow rowhead = sheet.createRow((short)0);
-			rowhead.createCell(C_VERSION).setCellValue("Version");
-			rowhead.createCell(C_DATE).setCellValue("Date");
-			rowhead.createCell(C_PAGE_NAME).setCellValue("Page Name");
-			rowhead.createCell(C_PAGE_URL).setCellValue("URL");
-			rowhead.createCell(C_CACHE).setCellValue("Cache");
-			rowhead.createCell(C_BROWSER).setCellValue("Browser");
-			rowhead.createCell(C_BROWSER_VERSION).setCellValue("Browser Version");
-			rowhead.createCell(C_ADD_ONS).setCellValue("Add-ons");
-			rowhead.createCell(C_TIME).setCellValue("Time(s)");
-			rowhead.createCell(C_RAM).setCellValue("RAM(GB)");
+			HSSFRow rowhead = sheet.createRow((short)1);
+			rowhead.createCell(Constants.COL_VERSION).setCellValue("Version");
+			rowhead.createCell(Constants.COL_DATE).setCellValue("Date");
+			rowhead.createCell(Constants.COL_PAGE_NAME).setCellValue("Page Name");
+			rowhead.createCell(Constants.COL_PAGE_URL).setCellValue("URL");
+			rowhead.createCell(Constants.COL_CACHE).setCellValue("Cache");
+			rowhead.createCell(Constants.COL_BROWSER).setCellValue("Browser");
+			rowhead.createCell(Constants.COL_BROWSER_VERSION).setCellValue("Browser Version");
+			rowhead.createCell(Constants.COL_ADD_ONS).setCellValue("Add-ons");
+			rowhead.createCell(Constants.COL_RAM).setCellValue("RAM(GB)");
+			rowhead.createCell(Constants.COL_TIME).setCellValue("Time(s)");
+			rowhead.createCell(Constants.COL_TIME_NO_LOAD).setCellValue("Time No Load(s)");
 
 			FileOutputStream fileOut = new FileOutputStream(new File(FILEOUT));
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
+			System.out.println("Excel file generated!");
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -269,22 +311,27 @@ public class WebDriverTester {
 				createOutputFile();
 
 			FileInputStream input_document = new FileInputStream(new File(FILEOUT));
-			XSSFWorkbook workbook = new XSSFWorkbook(input_document); 
-			XSSFSheet sheet = workbook.getSheetAt(1);
+			HSSFWorkbook workbook = new HSSFWorkbook(input_document); 
+			HSSFSheet sheet = workbook.getSheet(DATA_SHEET);
 
 			for (WebResult webRes : results){
-				int row = sheet.getLastRowNum() + 1;
-				XSSFRow rowhead = sheet.createRow((short)row);
-				rowhead.createCell(C_VERSION).setCellValue(VERSION);
-				rowhead.createCell(C_DATE).setCellValue(date);
-				rowhead.createCell(C_PAGE_NAME).setCellValue(pageName);
-				rowhead.createCell(C_PAGE_URL).setCellValue(pageURL);
-				rowhead.createCell(C_CACHE).setCellValue(webRes.cache);
-				rowhead.createCell(C_BROWSER).setCellValue(BROWSER);
-				rowhead.createCell(C_BROWSER_VERSION).setCellValue(mBrowserVersionShort);
-				rowhead.createCell(C_ADD_ONS).setCellValue(ADD_ONS);
-				rowhead.createCell(C_TIME).setCellValue(webRes.seconds);
-				rowhead.createCell(C_RAM).setCellValue(RAM);
+				int row = sheet.getPhysicalNumberOfRows() + 1;
+				int physRows = sheet.getPhysicalNumberOfRows();
+				if(row < 2) row = 2;
+				if(row < physRows) row = physRows + 1;
+				
+				HSSFRow rowhead = sheet.createRow((short)row);
+				rowhead.createCell(Constants.COL_VERSION).setCellValue(VERSION);
+				rowhead.createCell(Constants.COL_DATE).setCellValue(date);
+				rowhead.createCell(Constants.COL_PAGE_NAME).setCellValue(pageName);
+				rowhead.createCell(Constants.COL_PAGE_URL).setCellValue(pageURL);
+				rowhead.createCell(Constants.COL_CACHE).setCellValue(webRes.cache);
+				rowhead.createCell(Constants.COL_BROWSER).setCellValue(mBrowser);
+				rowhead.createCell(Constants.COL_BROWSER_VERSION).setCellValue(mBrowserVersionShort);
+				rowhead.createCell(Constants.COL_ADD_ONS).setCellValue(ADD_ONS);
+				rowhead.createCell(Constants.COL_RAM).setCellValue(RAM);
+				rowhead.createCell(Constants.COL_TIME).setCellValue(webRes.seconds);
+				rowhead.createCell(Constants.COL_TIME_NO_LOAD).setCellValue(webRes.seconds_no_load);
 			}
 
 			input_document.close();
@@ -292,7 +339,7 @@ public class WebDriverTester {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			System.out.println("Your excel file has been generated!");
+			System.out.println("Excel file updated!");
 
 		} catch ( Exception ex ) {
 			System.out.println(ex);
@@ -302,9 +349,10 @@ public class WebDriverTester {
 	public static void main(String[] args) throws IOException{
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-		WebDriverTester mTest = new WebDriverTester(BROWSER);
-		//runAll(mTest);
-		runAllSkip(mTest, 11);
+		WebDriverTester mTest = new WebDriverTester(FIREFOX);
+		runAll(mTest);
+		mTest = new WebDriverTester(CHROME);
+		runAll(mTest);
 	}
 
 	public static void runAll(WebDriverTester mTest) {
