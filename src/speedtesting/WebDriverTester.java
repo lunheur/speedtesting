@@ -317,7 +317,7 @@ public class WebDriverTester {
 			for (WebResult webRes : results){
 				int row = sheet.getPhysicalNumberOfRows() + 1;
 				int physRows = sheet.getPhysicalNumberOfRows();
-				if(row < 2) row = 2;
+				if((short)row < 2) row = 2;
 				if(row < physRows) row = physRows + 1;
 				
 				HSSFRow rowhead = sheet.createRow((short)row);
@@ -362,9 +362,9 @@ public class WebDriverTester {
 		}
 	}
 	
-	public static void runAllSkip(WebDriverTester mTest, int skip) {
+	public static void runSome(WebDriverTester mTest, int start, int end) {
 		List<Page> pages = Page.getAllPages();
-		for (int i = skip; i < pages.size(); i++){
+		for (int i = start; i < pages.size() && i < end; i++){
 			mTest.run(pages.get(i).name, pages.get(i).url);
 		}
 	}

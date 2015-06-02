@@ -9,6 +9,7 @@ public class WebResult {
 		this.millis = millis;
 		this.millis_no_load = millis_no_load;
 		this.cache = cache;
+		
 		seconds = this.millis / 1000.0;
 		seconds_no_load = this.millis_no_load / 1000.0;
 	}
