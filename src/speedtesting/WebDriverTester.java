@@ -7,10 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -22,6 +26,7 @@ import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -76,12 +81,13 @@ public class WebDriverTester {
 						break;
 		case CHROME : 	mBrowser = CHROME;
 						System.setProperty("webdriver.chrome.driver", CHROMEDRIVER);
-						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
+//						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
+//						System.setProperty("webdriver.chrome.driver.logfile", LOGFILE);
 						break;
 		case IE : 		mBrowser = IE;
 						System.setProperty("webdriver.ie.driver", IEDRIVER);
-						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
-						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
+//						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
+//						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
 						break;
 		default : 		mBrowser = FIREFOX;
 						break;
@@ -135,6 +141,7 @@ public class WebDriverTester {
 						break;
 		case IE : 		DesiredCapabilities cap = new DesiredCapabilities();
 						cap.setCapability("ie.ensureCleanSession", true);
+						cap.setCapability("nativeEvents", false);
 						driver = new InternetExplorerDriver(cap);
 						break;
 		default : 		driver = new FirefoxDriver();
@@ -246,23 +253,18 @@ public class WebDriverTester {
 	}
 
 	private void logIn() {
-//		ieStart = System.currentTimeMillis();
 		//load log-in page
 		driver.get(pageURL);
 
 		waitForLoad(driver);
 		
-//		ieEnd = System.currentTimeMillis();
-
 		if( !isLogInPage ){
 			//log in
 			driver.findElement(By.id("account")).sendKeys(mAccount);
 			driver.findElement(By.id("userid")).sendKeys(mUser);
 			driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
 
-//			ieStart = System.currentTimeMillis();
 			waitForLoad(driver);
-//			ieEnd = System.currentTimeMillis();
 		}
 	}
 
@@ -270,7 +272,14 @@ public class WebDriverTester {
 		ExpectedCondition<Boolean> pageLoadCondition = new
 				ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver driver) {
-				return ((JavascriptExecutor)driver).executeScript("return document.readyState").equals("complete");
+				boolean readyState;
+				try {
+					readyState = ((JavascriptExecutor)driver).executeScript("return document.readyState").equals("complete");
+					return readyState;
+				} catch (WebDriverException e) {
+					System.out.print("Javascript Error, please wait. ");
+					return false;
+				}
 			}
 		};
 		WebDriverWait wait = new WebDriverWait(driver, 90);
@@ -353,25 +362,41 @@ public class WebDriverTester {
 	public static void main(String[] args) throws IOException{
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-//		WebDriverTester mTest = new WebDriverTester(FIREFOX);
-//		runAll(mTest);
-//		mTest = new WebDriverTester(CHROME);
-//		runAll(mTest);
-		WebDriverTester mTest = new WebDriverTester(IE);
+		WebDriverTester mTest = new WebDriverTester(FIREFOX);
+		runAll(mTest);
+		mTest = new WebDriverTester(CHROME);
+		runAll(mTest);
+		mTest = new WebDriverTester(IE);
 		runAll(mTest);
 	}
 
 	public static void runAll(WebDriverTester mTest) {
 		List<Page> pages = Page.getAllPages();
+		
+		long millStart = Calendar.getInstance().getTimeInMillis();
 		for (Page page : pages){
 			mTest.run(page.name, page.url);
 		}
+		long millEnd = Calendar.getInstance().getTimeInMillis();
+		
+		Calendar time = Calendar.getInstance();
+		time.setTimeInMillis(millEnd - millStart - TimeZone.getTimeZone("CST").getRawOffset());
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
+		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
 	}
 	
 	public static void runSome(WebDriverTester mTest, int start, int end) {
 		List<Page> pages = Page.getAllPages();
+		
+		long millStart = Calendar.getInstance().getTimeInMillis();
 		for (int i = start; i < pages.size() && i < end; i++){
 			mTest.run(pages.get(i).name, pages.get(i).url);
 		}
+		long millEnd = Calendar.getInstance().getTimeInMillis();
+		
+		Calendar time = Calendar.getInstance();
+		time.setTimeInMillis(millEnd - millStart - TimeZone.getTimeZone("CST").getRawOffset());
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
+		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
 	}
 }
