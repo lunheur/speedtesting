@@ -48,7 +48,6 @@ public class WebDriverTester {
 	private String date;
 	private String pageName;
 	private String pageURL;
-	private long ieStart, ieEnd;
 	boolean isLogInPage = false;
 	private static final String FIREFOX = "Firefox";
 	private static final String CHROME = "Chrome";
@@ -63,7 +62,7 @@ public class WebDriverTester {
 	public static final String ADD_ONS = NO_ADD_ONS;
 	public static final double RAM = 6.0;
 	/**These too**/
-	public static final int REPEAT = 1; //must be more than 0
+	public static final int REPEAT = 10; //must be more than 0
 	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls";
 	public static final String DATA_SHEET = "Raw Data"; //Sheet name to look for
 	public static final String CHROMEDRIVER = "C:/Users/Victor/Downloads/chromedriver.exe";
@@ -212,7 +211,7 @@ public class WebDriverTester {
 		waitForLoad(driver);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	private void getTimings(String cache) {
 		long mTotal, mNoLoad;
 		
@@ -328,7 +327,7 @@ public class WebDriverTester {
 			HSSFSheet sheet = workbook.getSheet(DATA_SHEET);
 
 			for (WebResult webRes : results){
-				int row = sheet.getPhysicalNumberOfRows() + 1;
+				int row = sheet.getPhysicalNumberOfRows() + 2;
 				int physRows = sheet.getPhysicalNumberOfRows();
 				if((short)row < 2) row = 2;
 				if(row < physRows) row = physRows + 1;
@@ -364,10 +363,13 @@ public class WebDriverTester {
 
 		WebDriverTester mTest = new WebDriverTester(FIREFOX);
 		runAll(mTest);
+//		runSome(mTest, 0, 1);
 		mTest = new WebDriverTester(CHROME);
 		runAll(mTest);
+//		runSome(mTest, 0, 1);
 		mTest = new WebDriverTester(IE);
 		runAll(mTest);
+//		runSome(mTest, 0, 1);
 	}
 
 	public static void runAll(WebDriverTester mTest) {
