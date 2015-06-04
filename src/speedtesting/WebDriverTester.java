@@ -65,8 +65,6 @@ public class WebDriverTester {
 	public static final int REPEAT = 10; //must be more than 0
 	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls";
 	public static final String DATA_SHEET = "Raw Data"; //Sheet name to look for
-	public static final String CHROMEDRIVER = "C:/Users/Victor/Downloads/chromedriver.exe";
-	public static final String IEDRIVER = "C:/Users/Victor/Downloads/iedriverserver.exe";
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt";
 	/**End of variables**/
 
@@ -79,12 +77,14 @@ public class WebDriverTester {
 		case FIREFOX : 	mBrowser = FIREFOX;
 						break;
 		case CHROME : 	mBrowser = CHROME;
-						System.setProperty("webdriver.chrome.driver", CHROMEDRIVER);
+						System.setProperty("webdriver.chrome.driver", 
+										   Paths.get("lib","chromedriver.exe").toAbsolutePath().toString());
 //						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
 //						System.setProperty("webdriver.chrome.driver.logfile", LOGFILE);
 						break;
 		case IE : 		mBrowser = IE;
-						System.setProperty("webdriver.ie.driver", IEDRIVER);
+						System.setProperty("webdriver.ie.driver",
+										   Paths.get("lib","IEDriverServer.exe").toAbsolutePath().toString());
 //						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
 //						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
 						break;
@@ -361,15 +361,16 @@ public class WebDriverTester {
 	public static void main(String[] args) throws IOException{
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-		WebDriverTester mTest = new WebDriverTester(FIREFOX);
-		runAll(mTest);
-//		runSome(mTest, 0, 1);
-		mTest = new WebDriverTester(CHROME);
-		runAll(mTest);
-//		runSome(mTest, 0, 1);
-		mTest = new WebDriverTester(IE);
-		runAll(mTest);
-//		runSome(mTest, 0, 1);
+//		WebDriverTester mTest = new WebDriverTester(FIREFOX);
+//		runAll(mTest);
+////		runSome(mTest, 0, 1);
+//		mTest = new WebDriverTester(CHROME);
+//		runAll(mTest);
+////		runSome(mTest, 0, 1);
+//		mTest = new WebDriverTester(IE);
+//		runAll(mTest);
+////		runSome(mTest, 0, 1);
+		
 	}
 
 	public static void runAll(WebDriverTester mTest) {
