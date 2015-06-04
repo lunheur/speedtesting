@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -48,6 +50,7 @@ public class WebDriverTester {
 	private String date;
 	private String pageName;
 	private String pageURL;
+	private String mDomain;
 	boolean isLogInPage = false;
 	private static final String FIREFOX = "Firefox";
 	private static final String CHROME = "Chrome";
@@ -58,33 +61,38 @@ public class WebDriverTester {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final String VERSION = "3.1";
+	public static final String DOMAIN = "https://demoh.acciodata.com/";
+	public static final String VERSION = "3.10"; // Accio version
 	public static final String ADD_ONS = NO_ADD_ONS;
 	public static final double RAM = 6.0;
 	/**These too**/
-	public static final int REPEAT = 10; //must be more than 0
-	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls";
-	public static final String DATA_SHEET = "Raw Data"; //Sheet name to look for
-	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt";
+	public static final int REPEAT = 3; //must be more than 0
+	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
+	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
+	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 	/**End of variables**/
 
 	/**
 	 * Initializes driver, defaults to firefox
-	 * @param browser "firefox", "chrome", or "ie"
+	 * @param browser use constants FIREFOX, CHROME, or IE
 	 */
-	public WebDriverTester(String browser){
+	public WebDriverTester(String browser, String domain){
+		mDomain = domain;
+		
 		switch (browser) {
 		case FIREFOX : 	mBrowser = FIREFOX;
 						break;
 		case CHROME : 	mBrowser = CHROME;
 						System.setProperty("webdriver.chrome.driver", 
 										   Paths.get("lib","chromedriver.exe").toAbsolutePath().toString());
+						System.setProperty("webdriver.chrome.silentOutput", "true");
 //						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
 //						System.setProperty("webdriver.chrome.driver.logfile", LOGFILE);
 						break;
 		case IE : 		mBrowser = IE;
 						System.setProperty("webdriver.ie.driver",
 										   Paths.get("lib","IEDriverServer.exe").toAbsolutePath().toString());
+						System.setProperty("webdriver.ie.driver.silent", "true");
 //						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
 //						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
 						break;
@@ -138,10 +146,10 @@ public class WebDriverTester {
 						break;
 		case CHROME : 	driver = new ChromeDriver();
 						break;
-		case IE : 		DesiredCapabilities cap = new DesiredCapabilities();
-						cap.setCapability("ie.ensureCleanSession", true);
-						cap.setCapability("nativeEvents", false);
-						driver = new InternetExplorerDriver(cap);
+		case IE : 		DesiredCapabilities ieCap = new DesiredCapabilities();
+						ieCap.setCapability("ie.ensureCleanSession", true);
+						ieCap.setCapability("nativeEvents", false);
+						driver = new InternetExplorerDriver(ieCap);
 						break;
 		default : 		driver = new FirefoxDriver();
 						break;
@@ -164,8 +172,14 @@ public class WebDriverTester {
 
 	}
 
+	/**
+	 * USE THIS to run specific websites
+	 * Automatically adds domain to url param
+	 * @param name Page Title
+	 * @param url Page URL, NOT INCLUDING DOMAIN
+	 */
 	public void run(String name, String url){
-		pageURL = url;
+		pageURL = mDomain + url;
 		pageName = name;
 		run();
 	}
@@ -177,7 +191,7 @@ public class WebDriverTester {
 	private void run(){
 		System.out.println("\n" + pageName + "\n--------------------");
 		getNewDriver();
-		checkIsLogIn();
+		checkIsLogInPage();
 		
 		for(int x = 0; x < REPEAT; x++){
 			logIn();
@@ -197,7 +211,7 @@ public class WebDriverTester {
 		results.clear();
 	}	
 
-	private void checkIsLogIn() {
+	private void checkIsLogInPage() {
 		String[] urlArray = pageURL.split("\\.");
 		if ( urlArray[urlArray.length - 1].equals("com") ||
 			 urlArray[urlArray.length - 1].equals("com/") )
@@ -211,6 +225,10 @@ public class WebDriverTester {
 		waitForLoad(driver);
 	}
 
+	/**
+	 * Gets the timing information using Javascript and stores in results list
+	 * @param cache Either "Yes" or "No" to indicate if there is a cache
+	 */
 	@SuppressWarnings({ "unchecked" })
 	private void getTimings(String cache) {
 		long mTotal, mNoLoad;
@@ -267,6 +285,10 @@ public class WebDriverTester {
 		}
 	}
 
+	/**
+	 * Wait for page to load, uses Javascript
+	 * @param driver
+	 */
 	private void waitForLoad(WebDriver driver) {
 		ExpectedCondition<Boolean> pageLoadCondition = new
 				ExpectedCondition<Boolean>() {
@@ -285,6 +307,9 @@ public class WebDriverTester {
 		wait.until(pageLoadCondition);
 	}
 
+	/**
+	 * Creates new FILEOUT spreadsheet
+	 */
 	private void createOutputFile() {
 		try {
 
@@ -317,6 +342,10 @@ public class WebDriverTester {
 		}
 	}
 
+	/**
+	 * Write everything in results List to FILEOUT
+	 * FILEOUT is created if it doesn't exist
+	 */
 	private void writeToExcel(){
 		try {
 			if( !(new File(FILEOUT).exists()) )
@@ -361,18 +390,18 @@ public class WebDriverTester {
 	public static void main(String[] args) throws IOException{
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-//		WebDriverTester mTest = new WebDriverTester(FIREFOX);
-//		runAll(mTest);
-////		runSome(mTest, 0, 1);
-//		mTest = new WebDriverTester(CHROME);
-//		runAll(mTest);
-////		runSome(mTest, 0, 1);
-//		mTest = new WebDriverTester(IE);
-//		runAll(mTest);
-////		runSome(mTest, 0, 1);
-		
+		WebDriverTester mTest = new WebDriverTester(FIREFOX, DOMAIN);
+		runAll(mTest);
+		mTest = new WebDriverTester(CHROME, DOMAIN);
+		runAll(mTest);
+		mTest = new WebDriverTester(IE, DOMAIN);
+		runAll(mTest);
 	}
 
+	/**
+	 * Runs every page given from Page.getAllPages();
+	 * @param mTest
+	 */
 	public static void runAll(WebDriverTester mTest) {
 		List<Page> pages = Page.getAllPages();
 		
@@ -388,6 +417,12 @@ public class WebDriverTester {
 		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
 	}
 	
+	/**
+	 * Runs pages from start to end (exclusive)
+	 * @param mTest
+	 * @param start Where to start (numbering starts at 0)
+	 * @param end Where to end (end is not included)
+	 */
 	public static void runSome(WebDriverTester mTest, int start, int end) {
 		List<Page> pages = Page.getAllPages();
 		
