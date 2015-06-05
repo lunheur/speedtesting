@@ -61,12 +61,12 @@ public class WebDriverTester {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final String DOMAIN = "https://demoh.acciodata.com/";
+	public static final String DOMAIN = "https://demoh.acciodata.com/"; //this is the domain you will use (make sure to have a '/' at the end)
 	public static final String VERSION = "3.10"; // Accio version
-	public static final String ADD_ONS = NO_ADD_ONS;
-	public static final double RAM = 6.0;
+	public static final String ADD_ONS = NO_ADD_ONS; // Put add-ons being used here as a String, e.g. "Adblock Plus". Use NO_ADD_ONS otherwise
+	public static final double RAM = 6.0; // Your computer's RAM in GB
 	/**These too**/
-	public static final int REPEAT = 3; //must be more than 0
+	public static final int REPEAT = 10; //must be more than 0
 	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
 	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
