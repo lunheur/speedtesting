@@ -55,5 +55,12 @@ public class Constants {
 	public static final int COL_RAM = 8;
 	public static final int COL_TIME = 9;
 	public static final int COL_TIME_NO_LOAD = 10;
+	
+	static final String FIREFOX = "Firefox";
+	static final String CHROME = "Chrome";
+	static final String IE = "IE";
+	static final String NO_ADD_ONS = "No";
+	
+	public static final double RAM = 6.0; // Your computer's RAM in GB
 			
 }

@@ -44,29 +44,14 @@ public class WebDriverTester {
 	private WebDriver driver;
 	private Map<String, Long> timings;
 	private List<WebResult> results;
-	private String mBrowser;
-	private String mBrowserVersion;
-	private String mBrowserVersionShort;
+	private String mBrowser, mBrowserVersion, mBrowserVersionShort;
 	private String date;
-	private String pageName;
-	private String pageURL;
-	private String mDomain;
+	private String pageName, pageURL;
+	private String mDomain, mVersion, mAddOns;
 	boolean isLogInPage = false;
-	private static final String FIREFOX = "Firefox";
-	private static final String CHROME = "Chrome";
-	private static final String IE = "IE";
-	private static final String NO_ADD_ONS = "No";
-
-	/**
-	 * *****VARIABLES*****
-	 * Make sure these are what you want
-	 */
-	public static final String DOMAIN = "https://demoh.acciodata.com/"; //this is the domain you will use (make sure to have a '/' at the end)
-	public static final String VERSION = "3.10"; // Accio version
-	public static final String ADD_ONS = NO_ADD_ONS; // Put add-ons being used here as a String, e.g. "Adblock Plus". Use NO_ADD_ONS otherwise
-	public static final double RAM = 6.0; // Your computer's RAM in GB
-	/**These too**/
-	public static final int REPEAT = 10; //must be more than 0
+	
+	/**Variables to set**/
+	public static int REPEAT = 5; //must be more than 0
 	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
 	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
@@ -76,27 +61,29 @@ public class WebDriverTester {
 	 * Initializes driver, defaults to firefox
 	 * @param browser use constants FIREFOX, CHROME, or IE
 	 */
-	public WebDriverTester(String browser, String domain){
+	public WebDriverTester(String browser, String domain, String version, String addOns){
 		mDomain = domain;
+		mVersion = version;
+		mAddOns = addOns;
 		
 		switch (browser) {
-		case FIREFOX : 	mBrowser = FIREFOX;
+		case Constants.FIREFOX : 	mBrowser = Constants.FIREFOX;
 						break;
-		case CHROME : 	mBrowser = CHROME;
+		case Constants.CHROME : 	mBrowser = Constants.CHROME;
 						System.setProperty("webdriver.chrome.driver", 
 										   Paths.get("lib","chromedriver.exe").toAbsolutePath().toString());
 						System.setProperty("webdriver.chrome.silentOutput", "true");
 //						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
 //						System.setProperty("webdriver.chrome.driver.logfile", LOGFILE);
 						break;
-		case IE : 		mBrowser = IE;
+		case Constants.IE : 		mBrowser = Constants.IE;
 						System.setProperty("webdriver.ie.driver",
 										   Paths.get("lib","IEDriverServer.exe").toAbsolutePath().toString());
 						System.setProperty("webdriver.ie.driver.silent", "true");
 //						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
 //						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
 						break;
-		default : 		mBrowser = FIREFOX;
+		default : 		mBrowser = Constants.FIREFOX;
 						break;
 		}
 		
@@ -119,7 +106,7 @@ public class WebDriverTester {
 		Capabilities cap = ((RemoteWebDriver) driver).getCapabilities();
 		mBrowserVersion = cap.getVersion();
 		
-		if (mBrowser.equals(IE)){
+		if (mBrowser.equals(Constants.IE)){
 			mBrowserVersionShort = mBrowserVersion; 
 			String uAgent = (String) ((JavascriptExecutor) driver).executeScript("return navigator.userAgent;");
 			//uAgent return as "MSIE 8.0 Windows" for IE8
@@ -142,11 +129,11 @@ public class WebDriverTester {
 	 */
 	private void getNewDriver() {
 		switch (mBrowser) {
-		case FIREFOX : 	driver = new FirefoxDriver();
+		case Constants.FIREFOX : 	driver = new FirefoxDriver();
 						break;
-		case CHROME : 	driver = new ChromeDriver();
+		case Constants.CHROME : 	driver = new ChromeDriver();
 						break;
-		case IE : 		DesiredCapabilities ieCap = new DesiredCapabilities();
+		case Constants.IE : 		DesiredCapabilities ieCap = new DesiredCapabilities();
 						ieCap.setCapability("ie.ensureCleanSession", true);
 						ieCap.setCapability("nativeEvents", false);
 						driver = new InternetExplorerDriver(ieCap);
@@ -234,7 +221,7 @@ public class WebDriverTester {
 		long mTotal, mNoLoad;
 		
 		//get timings Map and calculate time
-		if (!mBrowser.equals(IE)) {
+		if (!mBrowser.equals(Constants.IE)) {
 			timings = (Map<String, Long>) ((JavascriptExecutor) driver)
 					.executeScript("var performance = window.performance || {};"
 							+ "var timings = performance.timing || {};"
@@ -260,7 +247,8 @@ public class WebDriverTester {
 		}
 		
 		if (mTotal > 0){
-			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
+			//System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
+			System.out.print(".");
 			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
 			System.out.println("Error! " + cache + " cache run");
@@ -333,7 +321,7 @@ public class WebDriverTester {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			System.out.println("Excel file generated!");
+			System.out.println("\nExcel file generated!");
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -362,15 +350,15 @@ public class WebDriverTester {
 				if(row < physRows) row = physRows + 1;
 				
 				HSSFRow rowhead = sheet.createRow((short)row);
-				rowhead.createCell(Constants.COL_VERSION).setCellValue(VERSION);
+				rowhead.createCell(Constants.COL_VERSION).setCellValue(mVersion);
 				rowhead.createCell(Constants.COL_DATE).setCellValue(date);
 				rowhead.createCell(Constants.COL_PAGE_NAME).setCellValue(pageName);
 				rowhead.createCell(Constants.COL_PAGE_URL).setCellValue(pageURL);
 				rowhead.createCell(Constants.COL_CACHE).setCellValue(webRes.cache);
 				rowhead.createCell(Constants.COL_BROWSER).setCellValue(mBrowser);
 				rowhead.createCell(Constants.COL_BROWSER_VERSION).setCellValue(mBrowserVersionShort);
-				rowhead.createCell(Constants.COL_ADD_ONS).setCellValue(ADD_ONS);
-				rowhead.createCell(Constants.COL_RAM).setCellValue(RAM);
+				rowhead.createCell(Constants.COL_ADD_ONS).setCellValue(mAddOns);
+				rowhead.createCell(Constants.COL_RAM).setCellValue(Constants.RAM);
 				rowhead.createCell(Constants.COL_TIME).setCellValue(webRes.seconds);
 				rowhead.createCell(Constants.COL_TIME_NO_LOAD).setCellValue(webRes.seconds_no_load);
 			}
@@ -380,61 +368,15 @@ public class WebDriverTester {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			System.out.println("Excel file updated!");
+			System.out.println("\nExcel file updated!");
 
 		} catch ( Exception ex ) {
 			System.out.println(ex);
 		}
 	}
 
-	public static void main(String[] args) throws IOException{
-		Logger.getRootLogger().setLevel(Level.OFF);
+//	public static void main(String[] args) throws IOException{
+//
+//	}
 
-		WebDriverTester mTest = new WebDriverTester(FIREFOX, DOMAIN);
-		runAll(mTest);
-		mTest = new WebDriverTester(CHROME, DOMAIN);
-		runAll(mTest);
-		mTest = new WebDriverTester(IE, DOMAIN);
-		runAll(mTest);
-	}
-
-	/**
-	 * Runs every page given from Page.getAllPages();
-	 * @param mTest
-	 */
-	public static void runAll(WebDriverTester mTest) {
-		List<Page> pages = Page.getAllPages();
-		
-		long millStart = Calendar.getInstance().getTimeInMillis();
-		for (Page page : pages){
-			mTest.run(page.name, page.url);
-		}
-		long millEnd = Calendar.getInstance().getTimeInMillis();
-		
-		Calendar time = Calendar.getInstance();
-		time.setTimeInMillis(millEnd - millStart - TimeZone.getTimeZone("CST").getRawOffset());
-		DateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
-		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
-	}
-	
-	/**
-	 * Runs pages from start to end (exclusive)
-	 * @param mTest
-	 * @param start Where to start (numbering starts at 0)
-	 * @param end Where to end (end is not included)
-	 */
-	public static void runSome(WebDriverTester mTest, int start, int end) {
-		List<Page> pages = Page.getAllPages();
-		
-		long millStart = Calendar.getInstance().getTimeInMillis();
-		for (int i = start; i < pages.size() && i < end; i++){
-			mTest.run(pages.get(i).name, pages.get(i).url);
-		}
-		long millEnd = Calendar.getInstance().getTimeInMillis();
-		
-		Calendar time = Calendar.getInstance();
-		time.setTimeInMillis(millEnd - millStart - TimeZone.getTimeZone("CST").getRawOffset());
-		DateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
-		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
-	}
 }
