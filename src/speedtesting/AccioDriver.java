@@ -39,7 +39,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.sun.org.apache.bcel.internal.util.ClassLoader;
 
-public class WebDriverTester {
+public class AccioDriver {
 	private String mAccount, mUser, mPassword;
 	private WebDriver driver;
 	private Map<String, Long> timings;
@@ -48,23 +48,20 @@ public class WebDriverTester {
 	private String date;
 	private String pageName, pageURL;
 	private String mDomain, mVersion, mAddOns;
+	private int mRepeat = 5; //must be more than 0
 	boolean isLogInPage = false;
 	
-	/**Variables to set**/
-	public static int REPEAT = 5; //must be more than 0
-	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
-	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
-	/**End of variables**/
 
 	/**
 	 * Initializes driver, defaults to firefox
 	 * @param browser use constants FIREFOX, CHROME, or IE
 	 */
-	public WebDriverTester(String browser, String domain, String version, String addOns){
+	public AccioDriver(String browser, String domain, String version, String addOns, int repeats){
 		mDomain = domain;
 		mVersion = version;
 		mAddOns = addOns;
+		mRepeat = repeats;
 		
 		switch (browser) {
 		case Constants.FIREFOX : 	mBrowser = Constants.FIREFOX;
@@ -180,16 +177,16 @@ public class WebDriverTester {
 		getNewDriver();
 		checkIsLogInPage();
 		
-		for(int x = 0; x < REPEAT; x++){
+		for(int x = 0; x < mRepeat; x++){
 			logIn();
 			getTimings("No");
-			if(x != (REPEAT - 1)){
+			if(x != (mRepeat - 1)){
 				driver.quit();
 				getNewDriver();
 			}
 		}
 
-		for(int x = 0; x < REPEAT; x++){
+		for(int x = 0; x < mRepeat; x++){
 			refreshAndWait();
 			getTimings("Yes");
 		}
@@ -302,7 +299,7 @@ public class WebDriverTester {
 		try {
 
 			HSSFWorkbook workbook = new HSSFWorkbook();
-			HSSFSheet sheet = workbook.createSheet(DATA_SHEET);
+			HSSFSheet sheet = workbook.createSheet(Constants.DATA_SHEET);
 
 			HSSFRow rowhead = sheet.createRow((short)1);
 			rowhead.createCell(Constants.COL_VERSION).setCellValue("Version");
@@ -317,7 +314,7 @@ public class WebDriverTester {
 			rowhead.createCell(Constants.COL_TIME).setCellValue("Time(s)");
 			rowhead.createCell(Constants.COL_TIME_NO_LOAD).setCellValue("Time No Load(s)");
 
-			FileOutputStream fileOut = new FileOutputStream(new File(FILEOUT));
+			FileOutputStream fileOut = new FileOutputStream(new File(Constants.FILEOUT));
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
@@ -336,12 +333,12 @@ public class WebDriverTester {
 	 */
 	private void writeToExcel(){
 		try {
-			if( !(new File(FILEOUT).exists()) )
+			if( !(new File(Constants.FILEOUT).exists()) )
 				createOutputFile();
 
-			FileInputStream input_document = new FileInputStream(new File(FILEOUT));
+			FileInputStream input_document = new FileInputStream(new File(Constants.FILEOUT));
 			HSSFWorkbook workbook = new HSSFWorkbook(input_document); 
-			HSSFSheet sheet = workbook.getSheet(DATA_SHEET);
+			HSSFSheet sheet = workbook.getSheet(Constants.DATA_SHEET);
 
 			for (WebResult webRes : results){
 				int row = sheet.getPhysicalNumberOfRows() + 2;
@@ -364,7 +361,7 @@ public class WebDriverTester {
 			}
 
 			input_document.close();
-			FileOutputStream fileOut = new FileOutputStream(new File(FILEOUT));
+			FileOutputStream fileOut = new FileOutputStream(new File(Constants.FILEOUT));
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();

@@ -61,6 +61,9 @@ public class Constants {
 	static final String IE = "IE";
 	static final String NO_ADD_ONS = "No";
 	
+	/**Variables to set**/
 	public static final double RAM = 6.0; // Your computer's RAM in GB
+	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
+	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
 			
 }

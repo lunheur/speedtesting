@@ -14,19 +14,18 @@ public class RunAll {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final String DOMAIN = "https://demoh.acciodata.com/";
+	public static final int REPEATS = 5; // Number of times to change each page with and without cache
+	public static final String DOMAIN = "https://demoh.acciodata.com/"; // Must have '/' at the end
 	public static final String VERSION = "3.10";
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-//		WebDriverTester mTest = new WebDriverTester(Constants.FIREFOX, DOMAIN, VERSION, Constants.NO_ADD_ONS);
-//		runAll(mTest);
-		WebDriverTester mTest = new WebDriverTester(Constants.CHROME, DOMAIN, VERSION, Constants.NO_ADD_ONS);
-		WebDriverTester.REPEAT = 25;
+		AccioDriver mTest = new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
 		runAll(mTest);
-		mTest = new WebDriverTester(Constants.IE, DOMAIN, VERSION, Constants.NO_ADD_ONS);
-		WebDriverTester.REPEAT = 25;
+		mTest = new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
+		runAll(mTest);
+		mTest = new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
 		runAll(mTest);
 	}
 	
@@ -34,7 +33,7 @@ public class RunAll {
 	 * Runs every page given from Page.getAllPages();
 	 * @param mTest
 	 */
-	public static void runAll(WebDriverTester mTest) {
+	public static void runAll(AccioDriver mTest) {
 		List<Page> pages = Page.getAllPages();
 		
 		long millStart = Calendar.getInstance().getTimeInMillis();
@@ -60,7 +59,7 @@ public class RunAll {
 	 * @param start Where to start (numbering starts at 0)
 	 * @param end Where to end (end is not included)
 	 */
-	public static void runSome(WebDriverTester mTest, int start, int end) {
+	public static void runSome(AccioDriver mTest, int start, int end) {
 		List<Page> pages = Page.getAllPages();
 		
 		long millStart = Calendar.getInstance().getTimeInMillis();
