@@ -21,11 +21,11 @@ public class RunAll {
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
 
-		AccioDriver mTest = new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
+		AccioDriver mTest = new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
 		runAll(mTest);
 		mTest = new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
 		runAll(mTest);
-		mTest = new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
+		mTest = new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
 		runAll(mTest);
 	}
 	

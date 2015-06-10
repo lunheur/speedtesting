@@ -53,15 +53,19 @@ public class AccioDriver {
 	
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 
-	/**
-	 * Initializes driver, defaults to firefox
-	 * @param browser use constants FIREFOX, CHROME, or IE
+	/**Initializes driver, defaults to firefox
+	 * @param browser Use constants FIREFOX, CHROME, or IE
+	 * @param domain Website to test, must end in '/'
+	 * @param version Version of the site. 3.10, 3.0, or 2.45
+	 * @param addOns Add-ons that are activated. Use Constants.NO_ADD_ONS for none
+	 * @param repeats # of times to repeat each test (at least 1)
 	 */
 	public AccioDriver(String browser, String domain, String version, String addOns, int repeats){
 		mDomain = domain;
 		mVersion = version;
 		mAddOns = addOns;
 		mRepeat = repeats;
+		if(mRepeat < 1) mRepeat = 1;
 		
 		switch (browser) {
 		case Constants.FIREFOX : 	mBrowser = Constants.FIREFOX;
