@@ -44,6 +44,9 @@ public class Constants {
 	public static final String SYTEM_MESSAGES_URL = "cgi-bin/sysops/system_messages";
 	public static final String SYTEM_MESSAGES_NAME = "System Messages";
 	
+	public static final String REPORT_635611_URL = "cgi-bin/sdocs/show_order?order_number=635611";
+	public static final String REPORT_635611_NAME = "demoh Report 635611";
+	
 	public static final int COL_VERSION = 0;
 	public static final int COL_DATE = 1;
 	public static final int COL_PAGE_NAME = 2;

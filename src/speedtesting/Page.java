@@ -7,6 +7,10 @@ public class Page {
 	public String url;
 	public String name;
 
+	/**Returns Page object
+	 * @param name Page Name
+	 * @param url Page URL
+	 */
 	public Page(String name, String url) {
 		this.name = name;
 		this.url = url;

@@ -14,21 +14,46 @@ public class RunAll {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 5; // Number of times to change each page with and without cache
+	public static final int REPEATS = 25; // Number of times to change each page with and without cache
 	public static final String DOMAIN = "https://demoh.acciodata.com/"; // Must have '/' at the end
 	public static final String VERSION = "3.10";
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
+		Page report = new Page(Constants.REPORT_635611_NAME, Constants.REPORT_635611_URL);
 
 		AccioDriver mTest = new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
-		runAll(mTest);
+//		runAll(mTest);
+		runPage(mTest, report);
 		mTest = new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
-		runAll(mTest);
+//		runAll(mTest);
+		runPage(mTest, report);
 		mTest = new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
-		runAll(mTest);
+//		runAll(mTest);
+		runPage(mTest, report);
 	}
 	
+	/**Runs a single Page
+	 * @param mTest
+	 * @param page Page to run
+	 */
+	private static void runPage(AccioDriver mTest, Page page) {
+		long millStart = Calendar.getInstance().getTimeInMillis();
+		try {
+			mTest.run(page.name, page.url);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		long millEnd = Calendar.getInstance().getTimeInMillis();
+
+		Calendar time = Calendar.getInstance();
+		time.setTimeInMillis(millEnd - millStart - TimeZone.getTimeZone("CST").getRawOffset());
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
+		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
+	}
+	
+
 	/**
 	 * Runs every page given from Page.getAllPages();
 	 * @param mTest
