@@ -9,35 +9,32 @@ import java.util.TimeZone;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-public class RunAll {
+public class TestRunner {
 	/**
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 25; // Number of times to change each page with and without cache
+	public static final int REPEATS = 20; // Number of times to change each page with and without cache
 	public static final String DOMAIN = "https://demoh.acciodata.com/"; // Must have '/' at the end
 	public static final String VERSION = "3.10";
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
-		Page report = new Page(Constants.REPORT_635611_NAME, Constants.REPORT_635611_URL);
+		//Page report = new Page(Constants.REPORT_635611_NAME, Constants.REPORT_635611_URL);
 
-		AccioDriver mTest = new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
-//		runAll(mTest);
-		runPage(mTest, report);
-		mTest = new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
-//		runAll(mTest);
-		runPage(mTest, report);
-		mTest = new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.NO_ADD_ONS, REPEATS);
-//		runAll(mTest);
-		runPage(mTest, report);
+		AccioDriver mTest = new AccioDriver(Constants.FIREFOX, Constants.SALES_DOMAIN, "Sales", Constants.NO_ADD_ONS, REPEATS);
+		runSales(mTest);
+		mTest = new AccioDriver(Constants.CHROME, Constants.SALES_DOMAIN, "Sales", Constants.NO_ADD_ONS, REPEATS);
+		runSales(mTest);
+		mTest = new AccioDriver(Constants.IE, Constants.SALES_DOMAIN, "Sales", Constants.NO_ADD_ONS, REPEATS);
+		runSales(mTest);
 	}
 	
 	/**Runs a single Page
 	 * @param mTest
 	 * @param page Page to run
 	 */
-	private static void runPage(AccioDriver mTest, Page page) {
+	public static void runPage(AccioDriver mTest, Page page) {
 		long millStart = Calendar.getInstance().getTimeInMillis();
 		try {
 			mTest.run(page.name, page.url);
@@ -53,13 +50,21 @@ public class RunAll {
 		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
 	}
 	
+	public static void runAccio(AccioDriver mTest){
+		runAll(mTest, Page.getAccioPages());
+	}
+	
+	public static void runSales(AccioDriver mTest){
+		runAll(mTest, Page.getSalesPages());
+	}
+	
 
 	/**
-	 * Runs every page given from Page.getAllPages();
+	 * Runs every page given
 	 * @param mTest
+	 * @param pages List of pages to run
 	 */
-	public static void runAll(AccioDriver mTest) {
-		List<Page> pages = Page.getAllPages();
+	public static void runAll(AccioDriver mTest, List<Page> pages) {
 		
 		long millStart = Calendar.getInstance().getTimeInMillis();
 		for (Page page : pages){
@@ -85,7 +90,7 @@ public class RunAll {
 	 * @param end Where to end (end is not included)
 	 */
 	public static void runSome(AccioDriver mTest, int start, int end) {
-		List<Page> pages = Page.getAllPages();
+		List<Page> pages = Page.getAccioPages();
 		
 		long millStart = Calendar.getInstance().getTimeInMillis();
 		for (int i = start; i < pages.size() && i < end; i++){

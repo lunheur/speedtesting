@@ -44,20 +44,52 @@ public class Constants {
 	public static final String SYTEM_MESSAGES_URL = "cgi-bin/sysops/system_messages";
 	public static final String SYTEM_MESSAGES_NAME = "System Messages";
 	
+	//These are ONLY for www.acciodata.com
+	public static final String SALES_DOMAIN = "http://www.acciodata.com/";
+	public static final String HOME_URL = "";
+	public static final String HOME_NAME = "Homepage";
+	public static final String ENTERPRISE_URL = "products/new-enterprise/";
+	public static final String ENTERPRISE_NAME = "Accio Enterprise";
+	public static final String TRAINING_URL = "training-resources/";
+	public static final String TRAINING_NAME = "Training Resources";
+	public static final String CHOOSING_PLATFORM_URL = "choosing-the-right-platform-provider/";
+	public static final String CHOOSING_PLATFORM_NAME = "Choosing Platform";
+	public static final String FAQ_URL = "products/faq/";
+	public static final String FAQ_NAME = "FAQ";
+	public static final String DATA_VENDORS_URL = "vendors/data-vendors/";
+	public static final String DATA_VENDORS_NAME = "Data Vendors";
+	public static final String RIGHT_PLAN_URL = "the-right-plan-for-you/";
+	public static final String RIGHT_PLAN_NAME = "The Right Plan";
+	public static final String NEWS_URL = "about-accio/news/";
+	public static final String NEWS_NAME = "News";
+	public static final String MANAGEMENT_URL = "about-accio/management-team/";
+	public static final String MANAGEMENT_NAME = "Management Team";
+	public static final String SERIOUS_SECURITY_URL = "serious-security/";
+	public static final String SERIOUS_SECURITY_NAME = "Serious Security";
+	public static final String CONTACT_URL = "about-accio/contact/";
+	public static final String CONTACT_NAME = "Contact Us";
+	public static final String JOBS_URL = "jobs-2/";
+	public static final String JOBS_NAME = "Jobs";
+	public static final String CO_OP_URL = "accioustore/";
+	public static final String CO_OP_NAME = "Accio U Co-op";
+	public static final String REQUEST_DEMO_URL = "request-a-demo/";
+	public static final String REQUEST_DEMO_NAME = "Request A Demo";
+
 	public static final String REPORT_635611_URL = "cgi-bin/sdocs/show_order?order_number=635611";
 	public static final String REPORT_635611_NAME = "demoh Report 635611";
 	
 	public static final int COL_VERSION = 0;
-	public static final int COL_DATE = 1;
-	public static final int COL_PAGE_NAME = 2;
-	public static final int COL_PAGE_URL = 3;
-	public static final int COL_CACHE = 4;
-	public static final int COL_BROWSER = 5;
-	public static final int COL_BROWSER_VERSION = 6;
-	public static final int COL_ADD_ONS = 7;
-	public static final int COL_RAM = 8;
-	public static final int COL_TIME = 9;
-	public static final int COL_TIME_NO_LOAD = 10;
+	public static final int COL_DOMAIN = 1;
+	public static final int COL_DATE = 2;
+	public static final int COL_PAGE_NAME = 3;
+	public static final int COL_PAGE_URL = 4;
+	public static final int COL_CACHE = 5;
+	public static final int COL_BROWSER = 6;
+	public static final int COL_BROWSER_VERSION = 7;
+	public static final int COL_ADD_ONS = 8;
+	public static final int COL_RAM = 9;
+	public static final int COL_TIME = 10;
+	public static final int COL_TIME_NO_LOAD = 11;
 	
 	static final String FIREFOX = "Firefox";
 	static final String CHROME = "Chrome";

@@ -16,7 +16,7 @@ public class Page {
 		this.url = url;
 	}
 	
-	public static List<Page> getAllPages(){
+	public static List<Page> getAccioPages(){
 		List<Page> pages = new ArrayList<Page>();
 		
 		pages.add(new Page(Constants.LOGIN_NAME, Constants.LOGIN_URL));
@@ -40,6 +40,27 @@ public class Page {
 		pages.add(new Page(Constants.SITE_SETUP_NAME, Constants.SITE_SETUP_URL));
 		pages.add(new Page(Constants.SYSTEM_VARIABLES_NAME, Constants.SYSTEM_VARIABLES_URL));
 		pages.add(new Page(Constants.SYTEM_MESSAGES_NAME, Constants.SYTEM_MESSAGES_URL));
+		
+		return pages;
+	}
+	
+	public static List<Page> getSalesPages(){
+		List<Page> pages = new ArrayList<Page>();
+		
+		pages.add(new Page(Constants.HOME_NAME, Constants.HOME_URL));
+		pages.add(new Page(Constants.ENTERPRISE_NAME, Constants.ENTERPRISE_URL));
+		pages.add(new Page(Constants.TRAINING_NAME, Constants.TRAINING_URL));
+		pages.add(new Page(Constants.CHOOSING_PLATFORM_NAME, Constants.CHOOSING_PLATFORM_URL));
+		pages.add(new Page(Constants.FAQ_NAME, Constants.FAQ_URL));
+		pages.add(new Page(Constants.DATA_VENDORS_NAME, Constants.DATA_VENDORS_URL));
+		pages.add(new Page(Constants.RIGHT_PLAN_NAME, Constants.RIGHT_PLAN_URL));
+		pages.add(new Page(Constants.NEWS_NAME, Constants.NEWS_URL));
+		pages.add(new Page(Constants.MANAGEMENT_NAME, Constants.MANAGEMENT_URL));
+		pages.add(new Page(Constants.SERIOUS_SECURITY_NAME, Constants.SERIOUS_SECURITY_URL));
+		pages.add(new Page(Constants.CONTACT_NAME, Constants.CONTACT_URL));
+		pages.add(new Page(Constants.JOBS_NAME, Constants.JOBS_URL));
+		pages.add(new Page(Constants.CO_OP_NAME, Constants.CO_OP_URL));
+		pages.add(new Page(Constants.REQUEST_DEMO_NAME, Constants.REQUEST_DEMO_URL));
 		
 		return pages;
 	}

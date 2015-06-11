@@ -177,12 +177,12 @@ public class AccioDriver {
 	 * @param url URL of page to test
 	 */
 	private void run(){
-		System.out.println("\n" + pageName + "\n--------------------");
+		System.out.println("\n" + pageName + "\n"+ pageURL + "\n--------------------");
 		getNewDriver();
 		checkIsLogInPage();
 		
 		for(int x = 0; x < mRepeat; x++){
-			logIn();
+			load();
 			getTimings("No");
 			if(x != (mRepeat - 1)){
 				driver.quit();
@@ -200,12 +200,21 @@ public class AccioDriver {
 	}	
 
 	private void checkIsLogInPage() {
-		String[] urlArray = pageURL.split("\\.");
-		if ( urlArray[urlArray.length - 1].equals("com") ||
-			 urlArray[urlArray.length - 1].equals("com/") )
+		if ( endsInCom() || isSales() ){
 			isLogInPage = true;
-		else
+		}else{
 			isLogInPage = false;
+		}
+	}
+
+	private boolean isSales() {
+		return mDomain.equals(Constants.SALES_DOMAIN);
+	}
+
+	private boolean endsInCom() {
+		String[] urlArray = pageURL.split("\\.");
+		return urlArray[urlArray.length - 1].equals("com/") || 
+			   urlArray[urlArray.length - 1].equals("com");
 	}
 
 	private void refreshAndWait() {
@@ -248,7 +257,7 @@ public class AccioDriver {
 		}
 		
 		if (mTotal > 0){
-//			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
+			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
 			System.out.print(".");
 			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
@@ -258,7 +267,7 @@ public class AccioDriver {
 		}
 	}
 
-	private void logIn() {
+	private void load() {
 		//load log-in page
 		driver.get(pageURL);
 
@@ -307,6 +316,7 @@ public class AccioDriver {
 
 			HSSFRow rowhead = sheet.createRow((short)1);
 			rowhead.createCell(Constants.COL_VERSION).setCellValue("Version");
+			rowhead.createCell(Constants.COL_DOMAIN).setCellValue("Domain");
 			rowhead.createCell(Constants.COL_DATE).setCellValue("Date");
 			rowhead.createCell(Constants.COL_PAGE_NAME).setCellValue("Page Name");
 			rowhead.createCell(Constants.COL_PAGE_URL).setCellValue("URL");
@@ -352,6 +362,7 @@ public class AccioDriver {
 				
 				HSSFRow rowhead = sheet.createRow((short)row);
 				rowhead.createCell(Constants.COL_VERSION).setCellValue(mVersion);
+				rowhead.createCell(Constants.COL_DOMAIN).setCellValue(mDomain);
 				rowhead.createCell(Constants.COL_DATE).setCellValue(date);
 				rowhead.createCell(Constants.COL_PAGE_NAME).setCellValue(pageName);
 				rowhead.createCell(Constants.COL_PAGE_URL).setCellValue(pageURL);
