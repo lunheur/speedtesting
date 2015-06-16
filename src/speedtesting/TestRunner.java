@@ -14,20 +14,24 @@ public class TestRunner {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 20; // Number of times to change each page with and without cache
-	public static final String DOMAIN = "https://demoh.acciodata.com/"; // Must have '/' at the end
-	public static final String VERSION = "3.10";
+	public static final int REPEATS = 25; // Number of times to change each page with and without cache
+	public static final String DOMAIN = Constants.DEMOH; // Must have '/' at the end
+	public static final String VERSION = Constants.VER3_10;
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
-		//Page report = new Page(Constants.REPORT_635611_NAME, Constants.REPORT_635611_URL);
-
-		AccioDriver mTest = new AccioDriver(Constants.FIREFOX, Constants.SALES_DOMAIN, "Sales", Constants.NO_ADD_ONS, REPEATS);
-		runSales(mTest);
-		mTest = new AccioDriver(Constants.CHROME, Constants.SALES_DOMAIN, "Sales", Constants.NO_ADD_ONS, REPEATS);
-		runSales(mTest);
-		mTest = new AccioDriver(Constants.IE, Constants.SALES_DOMAIN, "Sales", Constants.NO_ADD_ONS, REPEATS);
-		runSales(mTest);
+		
+		runAccio(new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
+		runAccio(new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
+		runAccio(new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
+	}
+	
+	public static void runAccio(AccioDriver mTest){
+		runAll(mTest, Page.getAccioPages());
+	}
+	
+	public static void runSales(AccioDriver mTest){
+		runAll(mTest, Page.getSalesPages());
 	}
 	
 	/**Runs a single Page
@@ -49,15 +53,6 @@ public class TestRunner {
 		DateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
 		System.out.println("\nTest Finished!\nTotal time: " + formatter.format(time.getTime()) + "\n");
 	}
-	
-	public static void runAccio(AccioDriver mTest){
-		runAll(mTest, Page.getAccioPages());
-	}
-	
-	public static void runSales(AccioDriver mTest){
-		runAll(mTest, Page.getSalesPages());
-	}
-	
 
 	/**
 	 * Runs every page given

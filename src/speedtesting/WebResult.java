@@ -3,7 +3,7 @@ package speedtesting;
 public class WebResult {
 	public String cache;
 	public long millis, millis_no_load;
-	public double seconds, seconds_no_load;
+	public double seconds, seconds_no_load, latency;
 	
 	public WebResult(long millis, long millis_no_load, String cache){
 		this.millis = millis;
@@ -12,6 +12,7 @@ public class WebResult {
 		
 		seconds = this.millis / 1000.0;
 		seconds_no_load = this.millis_no_load / 1000.0;
+		latency = seconds - seconds_no_load;
 	}
 
 }

@@ -7,37 +7,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import com.sun.org.apache.bcel.internal.util.ClassLoader;
 
 public class AccioDriver {
 	private String mAccount, mUser, mPassword;
@@ -49,7 +40,8 @@ public class AccioDriver {
 	private String pageName, pageURL;
 	private String mDomain, mVersion, mAddOns;
 	private int mRepeat = 5; //must be more than 0
-	boolean isLogInPage = false;
+	private FirefoxProfile firefoxProfile;
+	boolean enableAddOns, isLogInPage = false;
 	
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 
@@ -65,27 +57,29 @@ public class AccioDriver {
 		mVersion = version;
 		mAddOns = addOns;
 		mRepeat = repeats;
+		this.enableAddOns = !mAddOns.equals(Constants.NO_ADD_ONS);
 		if(mRepeat < 1) mRepeat = 1;
 		
 		switch (browser) {
 		case Constants.FIREFOX : 	mBrowser = Constants.FIREFOX;
-						break;
+									if( enableAddOns) getFirefoxProfile();
+									break;
 		case Constants.CHROME : 	mBrowser = Constants.CHROME;
-						System.setProperty("webdriver.chrome.driver", 
+									System.setProperty("webdriver.chrome.driver", 
 										   Paths.get("lib","chromedriver.exe").toAbsolutePath().toString());
-						System.setProperty("webdriver.chrome.silentOutput", "true");
-//						System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
-//						System.setProperty("webdriver.chrome.driver.logfile", LOGFILE);
-						break;
+									System.setProperty("webdriver.chrome.silentOutput", "true");
+//									System.setProperty("webdriver.chrome.driver.loglevel", "FATAL");
+//									System.setProperty("webdriver.chrome.driver.logfile", LOGFILE);
+									break;
 		case Constants.IE : 		mBrowser = Constants.IE;
-						System.setProperty("webdriver.ie.driver",
+									System.setProperty("webdriver.ie.driver",
 										   Paths.get("lib","IEDriverServer.exe").toAbsolutePath().toString());
-						System.setProperty("webdriver.ie.driver.silent", "true");
-//						System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
-//						System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
-						break;
-		default : 		mBrowser = Constants.FIREFOX;
-						break;
+									System.setProperty("webdriver.ie.driver.silent", "true");
+//									System.setProperty("webdriver.ie.driver.loglevel", "TRACE");
+//									System.setProperty("webdriver.ie.driver.logfile", LOGFILE);
+									break;
+		default : 					mBrowser = Constants.FIREFOX;
+									break;
 		}
 		
 		getLogin();
@@ -130,19 +124,55 @@ public class AccioDriver {
 	 */
 	private void getNewDriver() {
 		switch (mBrowser) {
-		case Constants.FIREFOX : 	driver = new FirefoxDriver();
-						break;
-		case Constants.CHROME : 	driver = new ChromeDriver();
-						break;
-		case Constants.IE : 		DesiredCapabilities ieCap = new DesiredCapabilities();
-						ieCap.setCapability("ie.ensureCleanSession", true);
-						ieCap.setCapability("nativeEvents", false);
-						driver = new InternetExplorerDriver(ieCap);
-						break;
-		default : 		driver = new FirefoxDriver();
-						break;
+		case Constants.FIREFOX : 	getFirefoxDriver();
+									break;
+		case Constants.CHROME : 	getChromeDriver();
+									break;
+		case Constants.IE : 		getIEDriver();
+									break;
+		default : 					getFirefoxDriver();
+									break;
 		}
 	}
+
+	private void getIEDriver() {
+		DesiredCapabilities ieCap = new DesiredCapabilities();
+		ieCap.setCapability("ie.ensureCleanSession", true);
+		ieCap.setCapability("nativeEvents", false);
+		driver = new InternetExplorerDriver(ieCap);
+	}
+
+	private void getChromeDriver() {
+		if (enableAddOns){
+			ChromeOptions options = new ChromeOptions();
+			options.addExtensions(
+					new File(Constants.EXTENSION));
+			
+			driver = new ChromeDriver(options);
+			long startWait = System.currentTimeMillis();
+			while(driver.getWindowHandles().size() <= 1){
+				long endWait = System.currentTimeMillis();
+				if ( (endWait - startWait) >= 30000 ) break;
+			}
+			Object[] handles = driver.getWindowHandles().toArray();
+			for (int h = 1; h < handles.length; h++){
+				driver.switchTo().window((String) handles[1]);
+				driver.close();
+			}
+			driver.switchTo().window((String) handles[0]);
+			
+		}else{
+			driver = new ChromeDriver();
+		}
+	}
+
+	private void getFirefoxDriver() {
+		if (enableAddOns)
+			driver = new FirefoxDriver(firefoxProfile);
+		else
+			driver = new FirefoxDriver();
+	}
+	
 
 	/**
 	 * Reads in login data from /src/login.txt
@@ -187,6 +217,11 @@ public class AccioDriver {
 			if(x != (mRepeat - 1)){
 				driver.quit();
 				getNewDriver();
+			} else if (enableAddOns && mBrowser.equals(Constants.FIREFOX)) {
+				driver.quit();
+				enableFFCache();
+				getNewDriver();
+				load();
 			}
 		}
 
@@ -195,6 +230,8 @@ public class AccioDriver {
 			getTimings("Yes");
 		}
 		driver.quit();
+		if (enableAddOns && mBrowser.equals(Constants.FIREFOX))
+			disableFFCache();
 		writeToExcel();
 		results.clear();
 	}	
@@ -257,7 +294,7 @@ public class AccioDriver {
 		}
 		
 		if (mTotal > 0){
-			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
+//			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
 			System.out.print(".");
 			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
@@ -327,6 +364,7 @@ public class AccioDriver {
 			rowhead.createCell(Constants.COL_RAM).setCellValue("RAM(GB)");
 			rowhead.createCell(Constants.COL_TIME).setCellValue("Time(s)");
 			rowhead.createCell(Constants.COL_TIME_NO_LOAD).setCellValue("Time No Load(s)");
+			rowhead.createCell(Constants.COL_LATENCY).setCellValue("Latency(s)");
 
 			FileOutputStream fileOut = new FileOutputStream(new File(Constants.FILEOUT));
 			workbook.write(fileOut);
@@ -354,6 +392,7 @@ public class AccioDriver {
 			HSSFWorkbook workbook = new HSSFWorkbook(input_document); 
 			HSSFSheet sheet = workbook.getSheet(Constants.DATA_SHEET);
 
+			long tot = 0;
 			for (WebResult webRes : results){
 				int row = sheet.getPhysicalNumberOfRows() + 2;
 				int physRows = sheet.getPhysicalNumberOfRows();
@@ -373,6 +412,9 @@ public class AccioDriver {
 				rowhead.createCell(Constants.COL_RAM).setCellValue(Constants.RAM);
 				rowhead.createCell(Constants.COL_TIME).setCellValue(webRes.seconds);
 				rowhead.createCell(Constants.COL_TIME_NO_LOAD).setCellValue(webRes.seconds_no_load);
+				rowhead.createCell(Constants.COL_LATENCY).setCellValue(webRes.latency);
+				
+				tot += webRes.seconds;
 			}
 
 			input_document.close();
@@ -380,15 +422,37 @@ public class AccioDriver {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			System.out.println("\nExcel file updated!");
+			double avg = tot / results.size();
+			System.out.println("\nAverage is: " + avg + "ms" );
+			System.out.println("Excel file updated!");
 
 		} catch ( Exception ex ) {
 			System.out.println(ex);
 		}
 	}
 
-//	public static void main(String[] args) throws IOException{
-//
+	private void getFirefoxProfile(){
+		File profileDir = new File(Constants.FFPROFILE);
+		firefoxProfile = new FirefoxProfile(profileDir);
+		disableFFCache();
+	}
+
+	private void disableFFCache() {
+		firefoxProfile.setPreference("browser.cache.disk.enable", false);
+		firefoxProfile.setPreference("browser.cache.memory.enable", false);
+		firefoxProfile.setPreference("browser.cache.offline.enable", false);
+		firefoxProfile.setPreference("network.http.use-cache", false);
+	}
+	
+	private void enableFFCache() {
+		firefoxProfile.setPreference("browser.cache.disk.enable", true);
+		firefoxProfile.setPreference("browser.cache.memory.enable", true);
+		firefoxProfile.setPreference("browser.cache.offline.enable", true);
+		firefoxProfile.setPreference("network.http.use-cache", true);
+	}
+	
+//	public static void main(String[] args) throws IOException, InterruptedException{
+//		Logger.getRootLogger().setLevel(Level.OFF);
 //	}
 
 }

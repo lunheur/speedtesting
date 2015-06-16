@@ -1,6 +1,14 @@
 package speedtesting;
 
 public class Constants {
+	// Software Versions
+	public static final String VER3_10 = "3.10";
+	public static final String VER3_0 = "3.0";
+	public static final String VER2_45 = "2.45";
+	// Domains
+	public static final String DEMOH = "https://demoh.acciodata.com/";
+	
+	// Accio pages
 	public static final String LOGIN_URL = "";
 	public static final String LOGIN_NAME = "Log-in page";
 	public static final String SYSOP_HOME_URL = "sysops/sysop_home5.html";
@@ -90,15 +98,19 @@ public class Constants {
 	public static final int COL_RAM = 9;
 	public static final int COL_TIME = 10;
 	public static final int COL_TIME_NO_LOAD = 11;
+	public static final int COL_LATENCY = 12;
 	
 	static final String FIREFOX = "Firefox";
 	static final String CHROME = "Chrome";
 	static final String IE = "IE";
 	static final String NO_ADD_ONS = "No";
+	static final String ADBLOCKPLUS = "AdblockPlus";
 	
 	/**Variables to set**/
 	public static final double RAM = 6.0; // Your computer's RAM in GB
 	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
 	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
+	public static final String FFPROFILE = "C:/Users/Victor/AppData/Roaming/Mozilla/Firefox/Profiles/cgkef1wb.default";
+	public static final String EXTENSION = "C:/Users/Victor/AppData/Local/Google/Chrome/User Data/Default/Extensions/cfhdojbkjhnklbpkdaibdccddilifddb/1.9_0.crx";
 			
 }
