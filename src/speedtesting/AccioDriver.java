@@ -12,6 +12,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -41,7 +43,7 @@ public class AccioDriver {
 	private String mDomain, mVersion, mAddOns;
 	private int mRepeat = 5; //must be more than 0
 	private FirefoxProfile firefoxProfile;
-	boolean enableAddOns, isLogInPage = false;
+	private boolean enableAddOns, isLogInPage = false;
 	
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 
@@ -156,6 +158,7 @@ public class AccioDriver {
 			}
 			Object[] handles = driver.getWindowHandles().toArray();
 			for (int h = 1; h < handles.length; h++){
+				System.out.println("Closing handle " + (String) handles[1]);
 				driver.switchTo().window((String) handles[1]);
 				driver.close();
 			}
@@ -207,7 +210,7 @@ public class AccioDriver {
 	 * @param url URL of page to test
 	 */
 	private void run(){
-		System.out.println("\n" + pageName + "\n"+ pageURL + "\n--------------------");
+		System.out.print("\n  " + pageName + "\n  "+ pageURL + "\n  --------------------\n  ");
 		getNewDriver();
 		checkIsLogInPage();
 		
@@ -422,9 +425,9 @@ public class AccioDriver {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			double avg = tot / results.size();
-			System.out.println("\nAverage is: " + avg + "ms" );
-			System.out.println("Excel file updated!");
+			double avg = tot / (long)results.size();
+			System.out.println("\n  Average is: " + avg + "s" );
+			System.out.println("  Excel file updated!");
 
 		} catch ( Exception ex ) {
 			System.out.println(ex);

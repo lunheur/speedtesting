@@ -14,16 +14,22 @@ public class TestRunner {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 25; // Number of times to change each page with and without cache
+	public static final int REPEATS = 50; // Number of times to change each page with and without cache
 	public static final String DOMAIN = Constants.DEMOH; // Must have '/' at the end
 	public static final String VERSION = Constants.VER3_10;
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
 		
-		runAccio(new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
-		runAccio(new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
+		Page demohReport = new Page(Constants.REPORT_635611_NAME, Constants.REPORT_635611_URL);
+		Page pricingExcel = new Page(Constants.PRICING_EXCEL_NAME, Constants.PRICING_EXCEL_URL);
+		
 		runAccio(new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
+
+		runPage(new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), demohReport);
+		runPage(new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), demohReport);
+		runPage(new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), pricingExcel);
+		runPage(new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), demohReport);
 	}
 	
 	public static void runAccio(AccioDriver mTest){
