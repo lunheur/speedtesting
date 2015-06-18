@@ -158,7 +158,7 @@ public class AccioDriver {
 			}
 			Object[] handles = driver.getWindowHandles().toArray();
 			for (int h = 1; h < handles.length; h++){
-				System.out.println("Closing handle " + (String) handles[1]);
+//				System.out.println("Closing handle " + (String) handles[1]);
 				driver.switchTo().window((String) handles[1]);
 				driver.close();
 			}
