@@ -5,8 +5,11 @@ public class Constants {
 	public static final String VER3_10 = "3.10";
 	public static final String VER3_0 = "3.0";
 	public static final String VER2_45 = "2.45";
+	
 	// Domains
 	public static final String DEMOH = "https://demoh.acciodata.com/";
+	public static final String BRAVO2_45 = "https://bravo:2835/";
+	public static final String BRAVO3_0 = "https://bravo:2859/";
 	
 	// Accio pages
 	public static final String LOGIN_URL = "";
@@ -106,11 +109,46 @@ public class Constants {
 	static final String NO_ADD_ONS = "No";
 	static final String ADBLOCKPLUS = "AdblockPlus";
 	
-	/**Variables to set**/
-	public static final double RAM = 6.0; // Your computer's RAM in GB
-	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls"; // Excel file to receive data, folder needs to exist, but file should not
-	public static final String DATA_SHEET = "Raw Data"; //Sheet name to use in FILEOUT
+	
+	/**********Variables to set**********/
+	
+	/**
+	 * Your computer's RAM in GB
+	 */
+	public static final double RAM = 6.0;
+	/**
+	 * Excel file to receive data <br>
+	 * Folder needs to exist, but the file should not <br>
+	 * Delete after running a test and copying data to Google Sheets
+	 */
+	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls";
+	/**
+	 * Sheet name that will be used in FILEOUT, no need to change
+	 */
+	public static final String DATA_SHEET = "Raw Data";
+	/**
+	 * <h3>To find your Firefox profile: </h3>
+	 * 1. Go to about:support <br>
+	 * 2. Click Application Basics -> Profile Folder -> Show Folder <br>
+	 * 3. Copy that folder location into FFPROFILE. <br>
+	 *  <br>
+	 * Now Selenium will run EXACTLY like your Firefox setup. <br>
+	 * You may want to remove pinned tabs/toolbars you don't want to get tested.
+	 */
 	public static final String FFPROFILE = "C:/Users/Victor/AppData/Roaming/Mozilla/Firefox/Profiles/cgkef1wb.default";
+	/**
+	 * <h3>To use an extension with Chrome: </h3>
+	 * 1. Go to chrome://version/ <br>
+	 * 2. Go to the "Profile Path" folder on your computer (copy/paste into Windows Explorer). <br>
+	 * 3. Go to Extensions folder, leave this open. <br>
+	 * 4. Go to chrome://extensions/ <br>
+	 * 5. Find the extension and look at its ID, this is the folder you need. <br>
+	 * 6. Click "Pack Extension..." <br>
+	 * 7. Put that address in the Extension root directory (e.g. C:/Users/.../Extensions/cfhdojbkjhnk.../) and hit Pack Extension. <br>
+	 * 8. Copy the location of the .crx file into EXTENSION. <br>
+	 *  <br>
+	 * Selenium will now run this ONE extension. Ask Victor if you need more than one at a time.
+	 */
 	public static final String EXTENSION = "C:/Users/Victor/AppData/Local/Google/Chrome/User Data/Default/Extensions/cfhdojbkjhnklbpkdaibdccddilifddb/1.9_0.crx";
 			
 }

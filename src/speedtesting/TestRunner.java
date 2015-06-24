@@ -14,24 +14,29 @@ public class TestRunner {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 50; // Number of times to change each page with and without cache
+	public static final int REPEATS = 50; // Number of times to load each page, first without cache, then with
 	public static final String DOMAIN = Constants.DEMOH; // Must have '/' at the end
 	public static final String VERSION = Constants.VER3_10;
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
 		
-		Page demohReport = new Page(Constants.REPORT_635611_NAME, Constants.REPORT_635611_URL);
-		Page pricingExcel = new Page(Constants.PRICING_EXCEL_NAME, Constants.PRICING_EXCEL_URL);
+		Page choosingPlatform = new Page(Constants.CHOOSING_PLATFORM_NAME, Constants.CHOOSING_PLATFORM_URL);
+		Page trainingResources = new Page(Constants.TRAINING_NAME, Constants.TRAINING_URL);
 		
-		runAccio(new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS));
-
-		runPage(new AccioDriver(Constants.CHROME, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), demohReport);
-		runPage(new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), demohReport);
-		runPage(new AccioDriver(Constants.FIREFOX, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), pricingExcel);
-		runPage(new AccioDriver(Constants.IE, DOMAIN, VERSION, Constants.ADBLOCKPLUS, REPEATS), demohReport);
+		runPage(new AccioDriver(Constants.CHROME, Constants.SALES_DOMAIN, "Sales", Constants.ADBLOCKPLUS, REPEATS), trainingResources);
+		runPage(new AccioDriver(Constants.FIREFOX, Constants.SALES_DOMAIN, "Sales", Constants.ADBLOCKPLUS, REPEATS), trainingResources);
+		runPage(new AccioDriver(Constants.IE, Constants.SALES_DOMAIN, "Sales", Constants.ADBLOCKPLUS, REPEATS), choosingPlatform);
+		runPage(new AccioDriver(Constants.IE, Constants.SALES_DOMAIN, "Sales", Constants.ADBLOCKPLUS, REPEATS), trainingResources);
+		
+		runAccio(new AccioDriver(Constants.CHROME, Constants.BRAVO3_0, "3.0", Constants.NO_ADD_ONS, REPEATS));
+		runAccio(new AccioDriver(Constants.CHROME, Constants.BRAVO2_45, "2.45", Constants.NO_ADD_ONS, REPEATS));
+		runAccio(new AccioDriver(Constants.FIREFOX, Constants.BRAVO3_0, "3.0", Constants.NO_ADD_ONS, REPEATS));
+		runAccio(new AccioDriver(Constants.FIREFOX, Constants.BRAVO2_45, "2.45", Constants.NO_ADD_ONS, REPEATS));
+		runAccio(new AccioDriver(Constants.IE, Constants.BRAVO3_0, "3.0", Constants.NO_ADD_ONS, REPEATS));
+		runAccio(new AccioDriver(Constants.IE, Constants.BRAVO2_45, "2.45", Constants.NO_ADD_ONS, REPEATS));
 	}
-	
+	 
 	public static void runAccio(AccioDriver mTest){
 		runAll(mTest, Page.getAccioPages());
 	}
@@ -71,9 +76,15 @@ public class TestRunner {
 		for (Page page : pages){
 			try {
 				mTest.run(page.name, page.url);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Exception pageEx) {
+				pageEx.printStackTrace();
+				System.out.println(page.name + " failed! Trying to close...");
+				try{
+					mTest.quit();
+				} catch (Exception quitEx) {
+					System.out.println("Closing failed.");
+					quitEx.printStackTrace();
+				}
 			}
 		}
 		long millEnd = Calendar.getInstance().getTimeInMillis();

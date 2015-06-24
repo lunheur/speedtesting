@@ -33,17 +33,18 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AccioDriver {
-	private String mAccount, mUser, mPassword;
 	private WebDriver driver;
+	private String mAccount, mUser, mPassword;
 	private Map<String, Long> timings;
 	private List<WebResult> results;
 	private String mBrowser, mBrowserVersion, mBrowserVersionShort;
 	private String date;
 	private String pageName, pageURL;
 	private String mDomain, mVersion, mAddOns;
+	private final String indent = "    ";
 	private int mRepeat = 5; //must be more than 0
 	private FirefoxProfile firefoxProfile;
-	private boolean enableAddOns, isLogInPage = false;
+	private boolean enableAddOns, isLogInPage = false, writeOn = true;
 	
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 
@@ -118,7 +119,7 @@ public class AccioDriver {
 			mBrowserVersionShort = mBrowserVersion.substring(0, mBrowserVersion.indexOf("."));
 		}
 		System.out.println(mBrowser + " Version: " + mBrowserVersionShort);
-		driver.quit();
+		quit();
 	}
 
 	/**
@@ -210,7 +211,13 @@ public class AccioDriver {
 	 * @param url URL of page to test
 	 */
 	private void run(){
-		System.out.print("\n  " + pageName + "\n  "+ pageURL + "\n  --------------------\n  ");
+		System.out.print("\n" + indent);
+		System.out.println(pageName);
+		System.out.print(indent);
+		System.out.println(pageURL);
+		System.out.print(indent);
+		System.out.println("--------------------");
+		System.out.print(indent);
 		getNewDriver();
 		checkIsLogInPage();
 		
@@ -218,10 +225,10 @@ public class AccioDriver {
 			load();
 			getTimings("No");
 			if(x != (mRepeat - 1)){
-				driver.quit();
+				quit();
 				getNewDriver();
 			} else if (enableAddOns && mBrowser.equals(Constants.FIREFOX)) {
-				driver.quit();
+				quit();
 				enableFFCache();
 				getNewDriver();
 				load();
@@ -232,19 +239,24 @@ public class AccioDriver {
 			refreshAndWait();
 			getTimings("Yes");
 		}
-		driver.quit();
+		quit();
 		if (enableAddOns && mBrowser.equals(Constants.FIREFOX))
 			disableFFCache();
-		writeToExcel();
+		if (writeOn)
+			writeToExcel();
 		results.clear();
 	}	
 
 	private void checkIsLogInPage() {
-		if ( endsInCom() || isSales() ){
+		if ( endsInCom() || isSales() || isBravoLogin() ){
 			isLogInPage = true;
 		}else{
 			isLogInPage = false;
 		}
+	}
+	
+	private boolean isBravoLogin() {
+		return mDomain.matches("https://bravo:[0-9]{4}/");
 	}
 
 	private boolean isSales() {
@@ -302,7 +314,9 @@ public class AccioDriver {
 			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
 			System.out.println("Error! " + cache + " cache run");
+			System.out.print(indent);
 			System.out.println("loadEventEnd = " + timings.get("loadEventEnd"));
+			System.out.print(indent);
 			System.out.println("navigationStart = " + timings.get("navigationStart"));
 		}
 	}
@@ -373,7 +387,8 @@ public class AccioDriver {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			System.out.println("\nExcel file generated!");
+			System.out.print("\n" + indent);
+			System.out.println("Excel file generated!");
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -426,8 +441,10 @@ public class AccioDriver {
 			fileOut.close();
 			workbook.close();
 			double avg = tot / (long)results.size();
-			System.out.println("\n  Average is: " + avg + "s" );
-			System.out.println("  Excel file updated!");
+			System.out.print("\n" + indent);
+			System.out.println("Average is: " + avg + "s" );
+			System.out.print(indent);
+			System.out.println("Excel file updated!");
 
 		} catch ( Exception ex ) {
 			System.out.println(ex);
@@ -454,6 +471,26 @@ public class AccioDriver {
 		firefoxProfile.setPreference("network.http.use-cache", true);
 	}
 	
+	public void quit(){
+		try {
+			driver.quit();
+		} catch (Exception driverQuitEx) {
+			System.out.println("Failed to close, trying windows...");
+			try {
+				Object[] handles = driver.getWindowHandles().toArray();
+				for (int h = 0; h < handles.length; h++){
+//					System.out.println("Closing handle " + (String) handles[1]);
+					driver.switchTo().window((String) handles[1]);
+					driver.close();
+				}
+				driver.quit();
+			} catch (Exception winQuitEx){
+				System.out.println("Window quit error.");
+				winQuitEx.printStackTrace();
+			}
+		}
+	}
+
 //	public static void main(String[] args) throws IOException, InterruptedException{
 //		Logger.getRootLogger().setLevel(Level.OFF);
 //	}
