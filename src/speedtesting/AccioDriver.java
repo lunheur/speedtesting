@@ -20,6 +20,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -31,6 +32,8 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.thoughtworks.selenium.Selenium;
 
 public class AccioDriver {
 	private WebDriver driver;
@@ -44,7 +47,9 @@ public class AccioDriver {
 	private final String indent = "    ";
 	private int mRepeat = 5; //must be more than 0
 	private FirefoxProfile firefoxProfile;
-	private boolean enableAddOns, isLogInPage = false, writeOn = true;
+	private boolean enableAddOns, isLogInPage = false;
+	private boolean writeOn = false, testTime = true;
+	private String credentials = "login.txt";
 	
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 
@@ -55,9 +60,9 @@ public class AccioDriver {
 	 * @param addOns Add-ons that are activated. Use Constants.NO_ADD_ONS for none
 	 * @param repeats # of times to repeat each test (at least 1)
 	 */
-	public AccioDriver(String browser, String domain, String version, String addOns, int repeats){
-		mDomain = domain;
-		mVersion = version;
+	public AccioDriver(String browser, Domain domain, String addOns, int repeats){
+		mDomain = domain.URL;
+		mVersion = domain.version;
 		mAddOns = addOns;
 		mRepeat = repeats;
 		this.enableAddOns = !mAddOns.equals(Constants.NO_ADD_ONS);
@@ -97,6 +102,13 @@ public class AccioDriver {
 		results = new ArrayList<WebResult>();
 		
 		getBrowserVersion();
+		System.out.println("Excel: " + writeOn + "\nTest Time: " + testTime);
+	}
+
+	public AccioDriver(String browser, Domain domain, String addOns, int repeats, String credFile){
+		this(browser, domain, addOns, repeats);
+		credentials = credFile;
+		getLogin();
 	}
 
 	private void getBrowserVersion() {
@@ -184,7 +196,7 @@ public class AccioDriver {
 	private void getLogin() {
 		try {
 			List<String> loginList = 
-					Files.readAllLines(Paths.get("src","login.txt"));
+					Files.readAllLines(Paths.get("src",credentials));
 			mAccount = loginList.get(0);
 			mUser = loginList.get(1);
 			mPassword = loginList.get(2);
@@ -200,9 +212,9 @@ public class AccioDriver {
 	 * @param name Page Title
 	 * @param url Page URL, NOT INCLUDING DOMAIN
 	 */
-	public void run(String name, String url){
-		pageURL = mDomain + url;
-		pageName = name;
+	public void run(Page page){
+		pageURL = mDomain + page.url;
+		pageName = page.name;
 		run();
 	}
 	/**
@@ -217,7 +229,8 @@ public class AccioDriver {
 		System.out.println(pageURL);
 		System.out.print(indent);
 		System.out.println("--------------------");
-		System.out.print(indent);
+		if(!testTime)
+			System.out.print(indent);
 		getNewDriver();
 		checkIsLogInPage();
 		
@@ -256,7 +269,7 @@ public class AccioDriver {
 	}
 	
 	private boolean isBravoLogin() {
-		return mDomain.matches("https://bravo:[0-9]{4}/");
+		return pageURL.matches("^https://bravo:[0-9]{4}/$");
 	}
 
 	private boolean isSales() {
@@ -309,8 +322,10 @@ public class AccioDriver {
 		}
 		
 		if (mTotal > 0){
-//			System.out.println(cache + " cache: " + mTotal + ", " + mNoLoad);
-			System.out.print(".");
+			if(testTime)
+				System.out.println(indent + cache + " cache: " + mTotal + ", " + mNoLoad);
+			else
+				System.out.print(".");
 			results.add(new WebResult(mTotal, mNoLoad, cache));
 		} else {
 			System.out.println("Error! " + cache + " cache run");
@@ -327,12 +342,29 @@ public class AccioDriver {
 
 		waitForLoad(driver);
 		
+		checkOverride();
+		
 		if( !isLogInPage ){
 			//log in
-			driver.findElement(By.id("account")).sendKeys(mAccount);
-			driver.findElement(By.id("userid")).sendKeys(mUser);
-			driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
+			try {
+				driver.findElement(By.name("account")).sendKeys(mAccount);
+				driver.findElement(By.name("userid")).sendKeys(mUser);
+				driver.findElement(By.name("password")).sendKeys(mPassword+"\n");
+			} catch (Exception e) { // 2.45 does not have ids, only names
+				driver.findElement(By.id("account")).sendKeys(mAccount);
+				driver.findElement(By.id("userid")).sendKeys(mUser);
+				driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
+			}
 
+			waitForLoad(driver);
+		}
+	}
+
+	private void checkOverride() {
+		boolean overridePresent = driver.findElements(By.id("overridelink")).size() > 0;
+		if(overridePresent){
+			System.out.print("*overriding*");
+			driver.findElement(By.name("overridelink")).click();
 			waitForLoad(driver);
 		}
 	}
@@ -491,8 +523,14 @@ public class AccioDriver {
 		}
 	}
 
-//	public static void main(String[] args) throws IOException, InterruptedException{
-//		Logger.getRootLogger().setLevel(Level.OFF);
-//	}
+	public static void main(String[] args) throws IOException, InterruptedException{
+		Logger.getRootLogger().setLevel(Level.OFF);
+		
+		Domain demoh = new Domain(Constants.DEMOH, "3.10");
+		
+		AccioDriver hey = new AccioDriver(Constants.FIREFOX, demoh, Constants.NO_ADD_ONS, 1);
+		
+		
+	}
 
 }

@@ -20,7 +20,7 @@ public class Page {
 		List<Page> pages = new ArrayList<Page>();
 		
 		pages.add(new Page(Constants.LOGIN_NAME, Constants.LOGIN_URL));
-		pages.add(new Page(Constants.SYSOP_HOME_NAME, Constants.SYSOP_HOME_URL));
+//		pages.add(new Page(Constants.SYSOP_HOME_NAME, Constants.SYSOP_HOME_URL));
 		pages.add(new Page(Constants.ORDER_NAME, Constants.ORDER_URL));
 		pages.add(new Page(Constants.REPORTS_NAME, Constants.REPORTS_URL));
 		pages.add(new Page(Constants.ALL_ORDERS_NAME, Constants.ALL_ORDERS_URL));
