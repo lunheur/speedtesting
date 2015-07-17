@@ -9,13 +9,19 @@ public class Constants {
 	// Domains
 	public static final String DEMOH = "https://demoh.acciodata.com/";
 	public static final String BRAVO2_45 = "https://bravo:2835/";
+	public static final String BRAVO2_45_PLUS = "https://bravo:2869/";
 	public static final String BRAVO3_0 = "https://bravo:2859/";
+	public static final String BRAVO3_0_PLUS = "https://bravo:2825/";
+	public static final String BRAVO3_10 = "https://bravo:2867/";
+	public static final String BRAVO3_10_PLUS = "https://bravo:2868/";
 	
 	// Accio pages
 	public static final String LOGIN_URL = "";
 	public static final String LOGIN_NAME = "Log-in page";
 	public static final String SYSOP_HOME_URL = "sysops/sysop_home5.html";
 	public static final String SYSOP_HOME_NAME = "Sysop Home";
+	public static final String SECURE_HOME_URL = "sdocs/secure_home.html";
+	public static final String SECURE_HOME_NAME = "Secure Home";
 	public static final String ORDER_URL = "sdocs/searchrequest.html";
 	public static final String ORDER_NAME = "Basic Order";	
 	public static final String REPORTS_URL = "cgi-bin/sdocs/show_reportlist";

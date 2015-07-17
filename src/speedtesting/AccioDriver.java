@@ -48,7 +48,7 @@ public class AccioDriver {
 	private int mRepeat = 5; //must be more than 0
 	private FirefoxProfile firefoxProfile;
 	private boolean enableAddOns, isLogInPage = false;
-	private boolean writeOn = false, testTime = true;
+	private boolean writeOn = true, testTime = false;
 	private String credentials = "login.txt";
 	
 	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
@@ -61,13 +61,45 @@ public class AccioDriver {
 	 * @param repeats # of times to repeat each test (at least 1)
 	 */
 	public AccioDriver(String browser, Domain domain, String addOns, int repeats){
+		setBrowser(browser);
+		setDomain(domain);
+		setAddOns(addOns);
+		setRepeats(repeats);
+		
+		getLogin();
+		results = new ArrayList<WebResult>();
+	}
+	
+	public AccioDriver(String browser, Domain domain, String addOns, int repeats, String credFile){
+		this(browser, domain, addOns, repeats);
+		setCredentials(credFile);
+	}
+
+	public void setRepeats(int repeats) {
+		mRepeat = repeats;
+		if(mRepeat < 1) mRepeat = 1;
+	}
+
+	public void setAddOns(String addOns) {
+		mAddOns = addOns;
+		enableAddOns = !mAddOns.equals(Constants.NO_ADD_ONS);
+	}
+
+	public void setDomain(Domain domain) {
 		mDomain = domain.URL;
 		mVersion = domain.version;
-		mAddOns = addOns;
-		mRepeat = repeats;
-		this.enableAddOns = !mAddOns.equals(Constants.NO_ADD_ONS);
-		if(mRepeat < 1) mRepeat = 1;
-		
+	}
+
+	private void getDate() {
+		//date field
+		Calendar calendar = Calendar.getInstance();
+		Integer month = calendar.get(Calendar.MONTH) + 1;
+		Integer day = calendar.get(Calendar.DAY_OF_MONTH);
+		Integer year = calendar.get(Calendar.YEAR);
+		date = month.toString() + "/" + day.toString() + "/" + year.toString();
+	}
+
+	public void setBrowser(String browser) {
 		switch (browser) {
 		case Constants.FIREFOX : 	mBrowser = Constants.FIREFOX;
 									if( enableAddOns) getFirefoxProfile();
@@ -89,26 +121,10 @@ public class AccioDriver {
 		default : 					mBrowser = Constants.FIREFOX;
 									break;
 		}
-		
-		getLogin();
-
-		//date field
-		Calendar calendar = Calendar.getInstance();
-		Integer month = calendar.get(Calendar.MONTH) + 1;
-		Integer day = calendar.get(Calendar.DAY_OF_MONTH);
-		Integer year = calendar.get(Calendar.YEAR);
-		date = month.toString() + "/" + day.toString() + "/" + year.toString();
-
-		results = new ArrayList<WebResult>();
-		
-		getBrowserVersion();
-		System.out.println("Excel: " + writeOn + "\nTest Time: " + testTime);
 	}
 
-	public AccioDriver(String browser, Domain domain, String addOns, int repeats, String credFile){
-		this(browser, domain, addOns, repeats);
+	public void setCredentials(String credFile) {
 		credentials = credFile;
-		getLogin();
 	}
 
 	private void getBrowserVersion() {
@@ -223,14 +239,15 @@ public class AccioDriver {
 	 * @param url URL of page to test
 	 */
 	private void run(){
-		System.out.print("\n" + indent);
-		System.out.println(pageName);
-		System.out.print(indent);
-		System.out.println(pageURL);
-		System.out.print(indent);
-		System.out.println("--------------------");
-		if(!testTime)
-			System.out.print(indent);
+		getBrowserVersion();
+		System.out.println("Excel: " + writeOn + "\nTest Time: " + testTime);
+
+		System.out.print("\n" + indent); System.out.println(pageName);
+		System.out.print(indent); System.out.println(pageURL);
+		System.out.print(indent); System.out.println("--------------------");
+		if(!testTime) System.out.print(indent);
+		
+		getLogin();
 		getNewDriver();
 		checkIsLogInPage();
 		
@@ -240,7 +257,7 @@ public class AccioDriver {
 			if(x != (mRepeat - 1)){
 				quit();
 				getNewDriver();
-			} else if (enableAddOns && mBrowser.equals(Constants.FIREFOX)) {
+			} else if (isFirefoxWithAddOns()) {
 				quit();
 				enableFFCache();
 				getNewDriver();
@@ -253,12 +270,16 @@ public class AccioDriver {
 			getTimings("Yes");
 		}
 		quit();
-		if (enableAddOns && mBrowser.equals(Constants.FIREFOX))
+		if (isFirefoxWithAddOns())
 			disableFFCache();
 		if (writeOn)
 			writeToExcel();
 		results.clear();
-	}	
+	}
+	
+	private boolean isFirefoxWithAddOns(){
+		return enableAddOns && mBrowser.equals(Constants.FIREFOX);
+	}
 
 	private void checkIsLogInPage() {
 		if ( endsInCom() || isSales() || isBravoLogin() ){
@@ -363,7 +384,7 @@ public class AccioDriver {
 	private void checkOverride() {
 		boolean overridePresent = driver.findElements(By.id("overridelink")).size() > 0;
 		if(overridePresent){
-			System.out.print("*overriding*");
+//			System.out.print("*overriding*");
 			driver.findElement(By.name("overridelink")).click();
 			waitForLoad(driver);
 		}
@@ -434,6 +455,8 @@ public class AccioDriver {
 	 * FILEOUT is created if it doesn't exist
 	 */
 	private void writeToExcel(){
+		getDate();
+		
 		try {
 			if( !(new File(Constants.FILEOUT).exists()) )
 				createOutputFile();
@@ -442,7 +465,7 @@ public class AccioDriver {
 			HSSFWorkbook workbook = new HSSFWorkbook(input_document); 
 			HSSFSheet sheet = workbook.getSheet(Constants.DATA_SHEET);
 
-			long tot = 0;
+			double tot = 0;
 			for (WebResult webRes : results){
 				int row = sheet.getPhysicalNumberOfRows() + 2;
 				int physRows = sheet.getPhysicalNumberOfRows();
@@ -472,7 +495,7 @@ public class AccioDriver {
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
-			double avg = tot / (long)results.size();
+			double avg = tot / (double)results.size();
 			System.out.print("\n" + indent);
 			System.out.println("Average is: " + avg + "s" );
 			System.out.print(indent);
@@ -523,14 +546,14 @@ public class AccioDriver {
 		}
 	}
 
-	public static void main(String[] args) throws IOException, InterruptedException{
-		Logger.getRootLogger().setLevel(Level.OFF);
-		
-		Domain demoh = new Domain(Constants.DEMOH, "3.10");
-		
-		AccioDriver hey = new AccioDriver(Constants.FIREFOX, demoh, Constants.NO_ADD_ONS, 1);
-		
-		
-	}
+//	public static void main(String[] args) throws IOException, InterruptedException{
+//		Logger.getRootLogger().setLevel(Level.OFF);
+//		
+//		Domain demoh = new Domain(Constants.DEMOH, "3.10");
+//		
+//		AccioDriver hey = new AccioDriver(Constants.FIREFOX, demoh, Constants.NO_ADD_ONS, 1);
+//		
+//		
+//	}
 
 }

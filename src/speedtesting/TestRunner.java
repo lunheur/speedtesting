@@ -10,35 +10,48 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public class TestRunner {
+	static Domain demoh = new Domain(Constants.DEMOH, "devhead");
+	static Domain bravo3_10_plus = new Domain(Constants.BRAVO3_10_PLUS, "3.10_plus");
+	static Domain bravo3_10 = new Domain(Constants.BRAVO3_10, "3.10");
+	static Domain bravo3_0_plus = new Domain(Constants.BRAVO3_0_PLUS, "3.0_plus");
+	static Domain bravo3_0 = new Domain(Constants.BRAVO3_0, "3.0");
+	static Domain bravo2_45_plus = new Domain(Constants.BRAVO2_45_PLUS, "2.45_plus");
+	static Domain bravo2_45 = new Domain(Constants.BRAVO2_45, "2.45");
 	/**
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 25; // Number of times to load each page, first without cache, then with
-	public static final String DOMAIN = Constants.DEMOH; // Must have '/' at the end
-	public static final String VERSION = Constants.VER3_10;
+	public static final int REPEATS = 10; // Number of times to load each page, first without cache, then with
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
-		Domain demoh = new Domain(Constants.DEMOH, "3.10");
-		Domain bravo3_0 = new Domain(Constants.BRAVO3_0, "3.0");
-		Domain bravo2_45 = new Domain(Constants.BRAVO2_45, "2.45");
 		String admin = "adminTestServer.txt";
-		
-//		runAccio(new AccioDriver(Constants.CHROME, bravo3_0, Constants.NO_ADD_ONS, REPEATS, admin));
-//		runAccio(new AccioDriver(Constants.CHROME, bravo2_45, Constants.NO_ADD_ONS, REPEATS, admin));
-//		runAccio(new AccioDriver(Constants.FIREFOX, bravo3_0, Constants.NO_ADD_ONS, REPEATS, admin));
-//		runAccio(new AccioDriver(Constants.FIREFOX, bravo2_45, Constants.NO_ADD_ONS, REPEATS, admin));
-		runAccio(new AccioDriver(Constants.IE, bravo3_0, Constants.NO_ADD_ONS, REPEATS, admin));
-		runAccio(new AccioDriver(Constants.IE, bravo2_45, Constants.NO_ADD_ONS, REPEATS, admin));
-		runAccio(new AccioDriver(Constants.CHROME, bravo3_0, Constants.ADBLOCKPLUS, REPEATS, admin));
-		runAccio(new AccioDriver(Constants.CHROME, bravo2_45, Constants.ADBLOCKPLUS, REPEATS, admin));
-		runAccio(new AccioDriver(Constants.FIREFOX, bravo3_0, Constants.ADBLOCKPLUS, REPEATS, admin));
-		runAccio(new AccioDriver(Constants.FIREFOX, bravo2_45, Constants.ADBLOCKPLUS, REPEATS, admin));
-//		runAccio(new AccioDriver(Constants.IE, bravo3_0, Constants.ADBLOCKPLUS, REPEATS, admin));
-//		runAccio(new AccioDriver(Constants.IE, bravo2_45, Constants.ADBLOCKPLUS, REPEATS, admin));
+
+		runAllBravos(Constants.CHROME, Constants.NO_ADD_ONS, REPEATS, admin);
+		runAllBravos(Constants.FIREFOX, Constants.NO_ADD_ONS, REPEATS, admin);
+		runAllBravos(Constants.IE, Constants.NO_ADD_ONS, REPEATS, admin);
 	}
-	 
+	
+	public static void runAllBravos(String browser, String addOns, int repeats, String credFile) {
+		AccioDriver driver = new AccioDriver(browser, bravo2_45, addOns, repeats, credFile);
+		runAccio(driver);
+		
+		driver.setDomain(bravo2_45_plus);
+		runAccio(driver);
+		
+		driver.setDomain(bravo3_0);
+		runAccio(driver);
+		
+		driver.setDomain(bravo3_0_plus);
+		runAccio(driver);
+		
+		driver.setDomain(bravo3_10);
+		runAccio(driver);
+		
+		driver.setDomain(bravo3_10_plus);
+		runAccio(driver);
+	}
+
 	public static void runAccio(AccioDriver mTest){
 		runAll(mTest, Page.getAccioPages());
 	}
