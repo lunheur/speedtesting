@@ -114,12 +114,11 @@ public class TestRunner {
 				pageEx.printStackTrace();
 				System.out.println(page.name + " failed! Trying to close...");
 				try{
-					mTest.quit();
+					mTest = mTest.getCloneAndClose();
 				} catch (Exception quitEx) {
 					System.out.println("Closing failed.");
 					quitEx.printStackTrace();
 				}
-				mTest = mTest.getCloneAndClose();
 			}
 		}
 		long millEnd = Calendar.getInstance().getTimeInMillis();
