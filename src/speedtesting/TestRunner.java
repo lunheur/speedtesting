@@ -33,6 +33,26 @@ public class TestRunner {
 	}
 	
 	public static void runAllBravos(String browser, String addOns, int repeats, String credFile) {
+//		Page secure = new Page(Constants.SECURE_HOME_NAME, Constants.SECURE_HOME_URL);
+//		
+//		AccioDriver driver = new AccioDriver(browser, bravo2_45, addOns, repeats, credFile);
+//		runPage(driver, secure);
+//		
+//		driver.setDomain(bravo2_45_plus);
+//		runAccio(driver);
+//		
+//		driver.setDomain(bravo3_0);
+//		runAccio(driver);
+//		
+//		driver.setDomain(bravo3_0_plus);
+//		runAccio(driver);
+//		
+//		driver.setDomain(bravo3_10);
+//		runAccio(driver);
+//		
+//		driver.setDomain(bravo3_10_plus);
+//		runAccio(driver);
+		
 		AccioDriver driver = new AccioDriver(browser, bravo2_45, addOns, repeats, credFile);
 		runAccio(driver);
 		
@@ -85,12 +105,12 @@ public class TestRunner {
 	 * @param pages List of pages to run
 	 */
 	public static void runAll(AccioDriver mTest, List<Page> pages) {
-		
 		long millStart = Calendar.getInstance().getTimeInMillis();
 		for (Page page : pages){
 			try {
 				mTest.run(page);
 			} catch (Exception pageEx) {
+				mTest.toExcel(); //print out what we got
 				pageEx.printStackTrace();
 				System.out.println(page.name + " failed! Trying to close...");
 				try{
@@ -99,6 +119,7 @@ public class TestRunner {
 					System.out.println("Closing failed.");
 					quitEx.printStackTrace();
 				}
+				mTest = mTest.getCloneAndClose();
 			}
 		}
 		long millEnd = Calendar.getInstance().getTimeInMillis();

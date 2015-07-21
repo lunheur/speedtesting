@@ -146,7 +146,7 @@ public class AccioDriver {
 		} else{
 			mBrowserVersionShort = mBrowserVersion.substring(0, mBrowserVersion.indexOf("."));
 		}
-		System.out.println(mBrowser + " Version: " + mBrowserVersionShort);
+		System.out.print(indent); System.out.println(mBrowser + " Version: " + mBrowserVersionShort);
 		quit();
 	}
 
@@ -240,7 +240,8 @@ public class AccioDriver {
 	 */
 	private void run(){
 		getBrowserVersion();
-		System.out.println("Excel: " + writeOn + "\nTest Time: " + testTime);
+		System.out.print(indent); System.out.println("Excel: " + writeOn); 
+		System.out.print(indent); System.out.println("Test Time: " + testTime);
 
 		System.out.print("\n" + indent); System.out.println(pageName);
 		System.out.print(indent); System.out.println(pageURL);
@@ -372,9 +373,9 @@ public class AccioDriver {
 				driver.findElement(By.name("userid")).sendKeys(mUser);
 				driver.findElement(By.name("password")).sendKeys(mPassword+"\n");
 			} catch (Exception e) { // 2.45 does not have ids, only names
-				driver.findElement(By.id("account")).sendKeys(mAccount);
-				driver.findElement(By.id("userid")).sendKeys(mUser);
-				driver.findElement(By.id("password")).sendKeys(mPassword+"\n");
+				e.printStackTrace();
+				System.out.println("\n*****I'M AT:" + driver.getCurrentUrl() + "*****\n");
+				throw e;
 			}
 
 			waitForLoad(driver);
@@ -504,6 +505,16 @@ public class AccioDriver {
 		} catch ( Exception ex ) {
 			System.out.println(ex);
 		}
+	}
+	
+	public void toExcel(){
+		writeToExcel();
+		results.clear();
+	}
+	
+	public AccioDriver getCloneAndClose(){
+		quit();
+		return new AccioDriver(mBrowser, new Domain(mDomain, mVersion), mAddOns, mRepeat, credentials);
 	}
 
 	private void getFirefoxProfile(){
