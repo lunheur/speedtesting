@@ -8,6 +8,8 @@ public class Constants {
 	
 	// Domains
 	public static final String DEMOH = "https://demoh.acciodata.com/";
+	public static final String INTEGRATIONTEST = "https://integrationtest.acciodata.com/";
+	public static final String DEVELOPMENT = "https://bravo:2858/";
 	public static final String BRAVO2_45 = "https://bravo:2835/";
 	public static final String BRAVO2_45_PLUS = "https://bravo:2869/";
 	public static final String BRAVO3_0 = "https://bravo:2859/";

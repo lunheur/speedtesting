@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 
 public class TestRunner {
 	static Domain demoh = new Domain(Constants.DEMOH, "devhead");
+	static Domain integrationtest = new Domain(Constants.INTEGRATIONTEST, "integrationtest");
+	static Domain development = new Domain(Constants.DEVELOPMENT, "development");
 	static Domain bravo3_10_plus = new Domain(Constants.BRAVO3_10_PLUS, "3.10_plus");
 	static Domain bravo3_10 = new Domain(Constants.BRAVO3_10, "3.10");
 	static Domain bravo3_0_plus = new Domain(Constants.BRAVO3_0_PLUS, "3.0_plus");
@@ -27,32 +29,12 @@ public class TestRunner {
 		Logger.getRootLogger().setLevel(Level.OFF);
 		String admin = "adminTestServer.txt";
 
-		runAllBravos(Constants.CHROME, Constants.NO_ADD_ONS, REPEATS, admin);
 		runAllBravos(Constants.FIREFOX, Constants.NO_ADD_ONS, REPEATS, admin);
+		runAllBravos(Constants.CHROME, Constants.NO_ADD_ONS, REPEATS, admin);
 		runAllBravos(Constants.IE, Constants.NO_ADD_ONS, REPEATS, admin);
 	}
 	
 	public static void runAllBravos(String browser, String addOns, int repeats, String credFile) {
-//		Page secure = new Page(Constants.SECURE_HOME_NAME, Constants.SECURE_HOME_URL);
-//		
-//		AccioDriver driver = new AccioDriver(browser, bravo2_45, addOns, repeats, credFile);
-//		runPage(driver, secure);
-//		
-//		driver.setDomain(bravo2_45_plus);
-//		runAccio(driver);
-//		
-//		driver.setDomain(bravo3_0);
-//		runAccio(driver);
-//		
-//		driver.setDomain(bravo3_0_plus);
-//		runAccio(driver);
-//		
-//		driver.setDomain(bravo3_10);
-//		runAccio(driver);
-//		
-//		driver.setDomain(bravo3_10_plus);
-//		runAccio(driver);
-		
 		AccioDriver driver = new AccioDriver(browser, bravo2_45, addOns, repeats, credFile);
 		runAccio(driver);
 		
