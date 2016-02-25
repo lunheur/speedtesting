@@ -123,13 +123,13 @@ public class Constants {
 	/**
 	 * Your computer's RAM in GB
 	 */
-	public static final double RAM = 6.0;
+	public static final double RAM = 8.0;
 	/**
 	 * Excel file to receive data <br>
 	 * Folder needs to exist, but the file should not <br>
 	 * Delete after running a test and copying data to Google Sheets
 	 */
-	public static final String FILEOUT = "C:/Users/Victor/Documents/Speed/Performance Testing.xls";
+	public static final String FILEOUT = "C:/Users/victo/Documents/Speed/Performance Testing.xls";
 	/**
 	 * Sheet name that will be used in FILEOUT, no need to change
 	 */

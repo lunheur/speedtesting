@@ -23,15 +23,31 @@ public class TestRunner {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 6; // Number of times to load each page, first without cache, then with
+	public static final int REPEATS = 10; // Number of times to load each page, first without cache, then with
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
 		String admin = "adminTestServer.txt";
+		
+		/**
+		 * Quick Test to verify each browser works
+		 * Delete the word "DELETE" to enable
+		 * 
+		 *DELETE/
 
+		Page home = new Page(Constants.SECURE_HOME_NAME, Constants.SECURE_HOME_URL);
+		
+		AccioDriver driver = new AccioDriver(Constants.FIREFOX, bravo3_10_plus, Constants.NO_ADD_ONS, 1, admin);
+		runPage(driver, home);
+		driver.setBrowser(Constants.CHROME);
+		runPage(driver, home);
+		driver.setBrowser(Constants.IE);
+		runPage(driver, home);
+//		*/
+		
+		runAllBravos(Constants.IE, Constants.NO_ADD_ONS, REPEATS, admin);
 		runAllBravos(Constants.FIREFOX, Constants.NO_ADD_ONS, REPEATS, admin);
 		runAllBravos(Constants.CHROME, Constants.NO_ADD_ONS, REPEATS, admin);
-		runAllBravos(Constants.IE, Constants.NO_ADD_ONS, REPEATS, admin);
 	}
 	
 	public static void runAllBravos(String browser, String addOns, int repeats, String credFile) {

@@ -51,7 +51,7 @@ public class AccioDriver {
 	private boolean writeOn = true, testTime = false;
 	private String credentials = "login.txt";
 	
-	public static final String LOGFILE = "C:/Users/Victor/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
+	public static final String LOGFILE = "C:/Users/victo/Documents/Speed/Log.txt"; //Used for debugging, doesn't need to be set
 
 	/**Initializes driver, defaults to firefox
 	 * @param browser Use constants FIREFOX, CHROME, or IE
