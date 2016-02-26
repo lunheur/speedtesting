@@ -12,22 +12,25 @@ import org.apache.log4j.Logger;
 public class TestRunner {
 	static Domain demoh = new Domain(Constants.DEMOH, "devhead");
 	static Domain integrationtest = new Domain(Constants.INTEGRATIONTEST, "integrationtest");
-	static Domain development = new Domain(Constants.DEVELOPMENT, "development");
-	static Domain bravo3_10_plus = new Domain(Constants.BRAVO3_10_PLUS, "3.10_plus");
+//	static Domain development = new Domain(Constants.DEVELOPMENT, "development");
+//	static Domain bravo3_10_plus = new Domain(Constants.BRAVO3_10_PLUS, "3.10_plus");
 	static Domain bravo3_10 = new Domain(Constants.BRAVO3_10, "3.10");
-	static Domain bravo3_0_plus = new Domain(Constants.BRAVO3_0_PLUS, "3.0_plus");
-	static Domain bravo3_0 = new Domain(Constants.BRAVO3_0, "3.0");
-	static Domain bravo2_45_plus = new Domain(Constants.BRAVO2_45_PLUS, "2.45_plus");
-	static Domain bravo2_45 = new Domain(Constants.BRAVO2_45, "2.45");
+//	static Domain bravo3_0_plus = new Domain(Constants.BRAVO3_0_PLUS, "3.0_plus");
+//	static Domain bravo3_0 = new Domain(Constants.BRAVO3_0, "3.0");
+//	static Domain bravo2_45_plus = new Domain(Constants.BRAVO2_45_PLUS, "2.45_plus");
+//	static Domain bravo2_45 = new Domain(Constants.BRAVO2_45, "2.45");
+	static Domain bravo3_11 = new Domain(Constants.BRAVO3_11, "3.11");
+	static Domain bravo3_11_plus = new Domain(Constants.BRAVO3_11_PLUS, "3.11_plus");
+	
 	/**
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 10; // Number of times to load each page, first without cache, then with
+	public static final int REPEATS = 2; // Number of times to load each page, first without cache, then with
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);
-		String admin = "adminTestServer.txt";
+		String login = "login.txt";
 		
 		/**
 		 * Quick Test to verify each browser works
@@ -45,28 +48,19 @@ public class TestRunner {
 		runPage(driver, home);
 //		*/
 		
-		runAllBravos(Constants.IE, Constants.NO_ADD_ONS, REPEATS, admin);
-		runAllBravos(Constants.FIREFOX, Constants.NO_ADD_ONS, REPEATS, admin);
-		runAllBravos(Constants.CHROME, Constants.NO_ADD_ONS, REPEATS, admin);
+		runAllBravos(Constants.IE, Constants.NO_ADD_ONS, REPEATS, login);
+		runAllBravos(Constants.FIREFOX, Constants.NO_ADD_ONS, REPEATS, login);
+		runAllBravos(Constants.CHROME, Constants.NO_ADD_ONS, REPEATS, login);
 	}
 	
 	public static void runAllBravos(String browser, String addOns, int repeats, String credFile) {
-		AccioDriver driver = new AccioDriver(browser, bravo2_45, addOns, repeats, credFile);
+		AccioDriver driver = new AccioDriver(browser, bravo3_10, addOns, repeats, credFile);
 		runAccio(driver);
 		
-		driver.setDomain(bravo2_45_plus);
+		driver.setDomain(bravo3_11);
 		runAccio(driver);
 		
-		driver.setDomain(bravo3_0);
-		runAccio(driver);
-		
-		driver.setDomain(bravo3_0_plus);
-		runAccio(driver);
-		
-		driver.setDomain(bravo3_10);
-		runAccio(driver);
-		
-		driver.setDomain(bravo3_10_plus);
+		driver.setDomain(bravo3_11_plus);
 		runAccio(driver);
 	}
 

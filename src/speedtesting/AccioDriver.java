@@ -56,7 +56,6 @@ public class AccioDriver {
 	/**Initializes driver, defaults to firefox
 	 * @param browser Use constants FIREFOX, CHROME, or IE
 	 * @param domain Website to test, must end in '/'
-	 * @param version Version of the site. 3.10, 3.0, or 2.45
 	 * @param addOns Add-ons that are activated. Use Constants.NO_ADD_ONS for none
 	 * @param repeats # of times to repeat each test (at least 1)
 	 */

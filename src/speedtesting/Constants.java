@@ -9,13 +9,16 @@ public class Constants {
 	// Domains
 	public static final String DEMOH = "https://demoh.acciodata.com/";
 	public static final String INTEGRATIONTEST = "https://integrationtest.acciodata.com/";
-	public static final String DEVELOPMENT = "https://bravo:2858/";
-	public static final String BRAVO2_45 = "https://bravo:2835/";
-	public static final String BRAVO2_45_PLUS = "https://bravo:2869/";
-	public static final String BRAVO3_0 = "https://bravo:2859/";
-	public static final String BRAVO3_0_PLUS = "https://bravo:2825/";
-	public static final String BRAVO3_10 = "https://bravo:2867/";
-	public static final String BRAVO3_10_PLUS = "https://bravo:2868/";
+	//public static final String DEVELOPMENT = "https://bravo:2858/"; //this is now 3.11+
+	//public static final String BRAVO2_45 = "https://testint3/"; //deprecated
+	//public static final String BRAVO2_45_PLUS = "https://testint19/"; //deprecated
+	//public static final String BRAVO3_0 = "https://testint9/"; //deprecated
+	//public static final String BRAVO3_0_PLUS = "https://bravo:2825/"; //deprecated
+	public static final String BRAVO3_10 = "https://testint17/";
+	// public static final String BRAVO3_10_PLUS = "https://bravo:2868/"; //deprecated
+	public static final String BRAVO3_11 = "https://testint18/";
+	public static final String BRAVO3_11_PLUS = "https://testint8/";
+	
 	
 	// Accio pages
 	public static final String LOGIN_URL = "";
