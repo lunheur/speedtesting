@@ -67,6 +67,9 @@ public class AccioDriver {
 		
 		getLogin();
 		results = new ArrayList<WebResult>();
+		
+		System.out.print(indent); System.out.println("Excel: " + writeOn); 
+		System.out.print(indent); System.out.println("Test Time: " + testTime);
 	}
 	
 	public AccioDriver(String browser, Domain domain, String addOns, int repeats, String credFile){
@@ -120,6 +123,8 @@ public class AccioDriver {
 		default : 					mBrowser = Constants.FIREFOX;
 									break;
 		}
+		
+		getBrowserVersion(); //moved to here from run, hopefully reduce how many times it's ran with no side effects
 	}
 
 	public void setCredentials(String credFile) {
@@ -238,9 +243,7 @@ public class AccioDriver {
 	 * @param url URL of page to test
 	 */
 	private void run(){
-		getBrowserVersion();
-		System.out.print(indent); System.out.println("Excel: " + writeOn); 
-		System.out.print(indent); System.out.println("Test Time: " + testTime);
+		//getBrowserVersion(); //removed and we now run this in setBrowser()
 
 		System.out.print("\n" + indent); System.out.println(pageName);
 		System.out.print(indent); System.out.println(pageURL);
@@ -251,10 +254,10 @@ public class AccioDriver {
 		getNewDriver();
 		checkIsLogInPage();
 		
-		for(int x = 0; x < mRepeat; x++){
+		for(int x = 0; x < mRepeat; x++){ //no cache loop
 			load();
 			getTimings("No");
-			if(x != (mRepeat - 1)){
+			if(x != (mRepeat - 1)){ //More non-cache tests left
 				quit();
 				getNewDriver();
 			} else if (isFirefoxWithAddOns()) {
@@ -265,7 +268,7 @@ public class AccioDriver {
 			}
 		}
 
-		for(int x = 0; x < mRepeat; x++){
+		for(int x = 0; x < mRepeat; x++){ //cache loop
 			refreshAndWait();
 			getTimings("Yes");
 		}
@@ -290,7 +293,7 @@ public class AccioDriver {
 	}
 	
 	private boolean isBravoLogin() {
-		return pageURL.matches("^https://bravo:[0-9]{4}/$");
+		return pageURL.matches("^https://testint[0-9]+/$");
 	}
 
 	private boolean isSales() {
