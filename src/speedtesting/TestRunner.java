@@ -26,7 +26,7 @@ public class TestRunner {
 	 * *****VARIABLES*****
 	 * Make sure these are what you want
 	 */
-	public static final int REPEATS = 2; // Number of times to load each page, first without cache, then with
+	public static final int REPEATS = 10; // Number of times to load each page, first without cache, then with
 
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.OFF);

@@ -32,7 +32,7 @@ public class Page {
 		pages.add(new Page(Constants.BILLING_NAME, Constants.BILLING_URL));
 		pages.add(new Page(Constants.ALL_ACCOUNTS_NAME, Constants.ALL_ACCOUNTS_URL));
 		pages.add(new Page(Constants.VENDOR_RULES_NAME, Constants.VENDOR_RULES_URL));
-		pages.add(new Page(Constants.VENDOR_TABLE_NAME, Constants.VENDOR_TABLE_URL));
+//		pages.add(new Page(Constants.VENDOR_TABLE_NAME, Constants.VENDOR_TABLE_URL)); //deprecated
 		pages.add(new Page(Constants.PRICING_WEB_NAME, Constants.PRICING_WEB_URL));
 		pages.add(new Page(Constants.PRICING_EXCEL_NAME, Constants.PRICING_EXCEL_URL));
 		pages.add(new Page(Constants.PRODUCTS_NAME, Constants.PRODUCTS_URL));
